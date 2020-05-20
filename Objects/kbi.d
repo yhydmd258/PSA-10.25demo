@@ -1,0 +1,11 @@
+.\objects\kbi.o: Library\sources\kbi.c
+.\objects\kbi.o: .\Library\headers\kbi.h
+.\objects\kbi.o: .\Device\headers\derivative.h
+.\objects\kbi.o: .\Device\headers\SKEAZ1284.h
+.\objects\kbi.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\kbi.o: .\CMSIS\core_cm0plus.h
+.\objects\kbi.o: .\CMSIS\core_cmInstr.h
+.\objects\kbi.o: .\CMSIS\core_cmFunc.h
+.\objects\kbi.o: .\Device\headers\system_SKEAZ1284.h
+.\objects\kbi.o: .\Device\headers\typedefs.h
+.\objects\kbi.o: .\Library\headers\nvic.h

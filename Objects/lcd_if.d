@@ -1,0 +1,14 @@
+.\objects\lcd_if.o: User\LCD\LCD_if.c
+.\objects\lcd_if.o: .\User\project_cfg.h
+.\objects\lcd_if.o: D:\MDK\ARM\ARMCC\Bin\..\include\string.h
+.\objects\lcd_if.o: User\LCD\../Command/command.h
+.\objects\lcd_if.o: .\Device\headers\derivative.h
+.\objects\lcd_if.o: .\Device\headers\SKEAZ1284.h
+.\objects\lcd_if.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\lcd_if.o: .\CMSIS\core_cm0plus.h
+.\objects\lcd_if.o: .\CMSIS\core_cmInstr.h
+.\objects\lcd_if.o: .\CMSIS\core_cmFunc.h
+.\objects\lcd_if.o: .\Device\headers\system_SKEAZ1284.h
+.\objects\lcd_if.o: .\Device\headers\typedefs.h
+.\objects\lcd_if.o: User\LCD\LCD_if.h
+.\objects\lcd_if.o: User\LCD\LCD_ctrl.h

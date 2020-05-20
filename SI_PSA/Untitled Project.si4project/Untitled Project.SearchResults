@@ -1,0 +1,9 @@
+---- QT_i2c_address Matches (8 in 2 files) ----
+atmel_1189.c (E:\Project\PSA\PSA2020 demo\PCBA\PSA10.25_Ccode\User\CTP) line 107 : UINT8 QT_i2c_address;
+atmel_1189.c (E:\Project\PSA\PSA2020 demo\PCBA\PSA10.25_Ccode\User\CTP) line 436 :     packet.slave_addr = QT_i2c_address;
+read_mem in atmel_1189.c (E:\Project\PSA\PSA2020 demo\PCBA\PSA10.25_Ccode\User\CTP) :         packet.slave_addr = QT_i2c_address;
+read_mem in atmel_1189.c (E:\Project\PSA\PSA2020 demo\PCBA\PSA10.25_Ccode\User\CTP) :     packet.slave_addr = QT_i2c_address;
+address_slave in atmel_1189.c (E:\Project\PSA\PSA2020 demo\PCBA\PSA10.25_Ccode\User\CTP) :     packet.slave_addr = QT_i2c_address;
+init_touch_driver in atmel_1189.c (E:\Project\PSA\PSA2020 demo\PCBA\PSA10.25_Ccode\User\CTP) :     QT_i2c_address = I2C_address;
+init_touch_driver in atmel_1189.c (E:\Project\PSA\PSA2020 demo\PCBA\PSA10.25_Ccode\User\CTP) : //        QT_printf("[TSP] I2C Slave Address = 0x%x\n\r",QT_i2c_address);
+atmel_1189.h (E:\Project\PSA\PSA2020 demo\PCBA\PSA10.25_Ccode\User\CTP) line 315 : extern UINT8 QT_i2c_address;

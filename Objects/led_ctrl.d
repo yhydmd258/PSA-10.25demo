@@ -1,0 +1,14 @@
+.\objects\led_ctrl.o: User\LED\LED_ctrl.c
+.\objects\led_ctrl.o: .\User\project_cfg.h
+.\objects\led_ctrl.o: User\LED\LED_if.h
+.\objects\led_ctrl.o: .\Device\headers\derivative.h
+.\objects\led_ctrl.o: .\Device\headers\SKEAZ1284.h
+.\objects\led_ctrl.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\led_ctrl.o: .\CMSIS\core_cm0plus.h
+.\objects\led_ctrl.o: .\CMSIS\core_cmInstr.h
+.\objects\led_ctrl.o: .\CMSIS\core_cmFunc.h
+.\objects\led_ctrl.o: .\Device\headers\system_SKEAZ1284.h
+.\objects\led_ctrl.o: .\Device\headers\typedefs.h
+.\objects\led_ctrl.o: User\LED\LED_ctrl.h
+.\objects\led_ctrl.o: User\LED\LED_data.h
+.\objects\led_ctrl.o: User\LED\../Command/command.h

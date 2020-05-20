@@ -1,0 +1,15 @@
+.\objects\ctp_if.o: User\CTP\CTP_if.c
+.\objects\ctp_if.o: .\User\project_cfg.h
+.\objects\ctp_if.o: User\CTP\../Deserialize/deserialize_if.h
+.\objects\ctp_if.o: .\Device\headers\derivative.h
+.\objects\ctp_if.o: .\Device\headers\SKEAZ1284.h
+.\objects\ctp_if.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\ctp_if.o: .\CMSIS\core_cm0plus.h
+.\objects\ctp_if.o: .\CMSIS\core_cmInstr.h
+.\objects\ctp_if.o: .\CMSIS\core_cmFunc.h
+.\objects\ctp_if.o: .\Device\headers\system_SKEAZ1284.h
+.\objects\ctp_if.o: .\Device\headers\typedefs.h
+.\objects\ctp_if.o: User\CTP\CTP_if.h
+.\objects\ctp_if.o: User\CTP\CTP_ctrl.h
+.\objects\ctp_if.o: User\CTP\../PIT/pit_if.h
+.\objects\ctp_if.o: User\CTP\../LED/LED_if.h

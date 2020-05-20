@@ -1,0 +1,13 @@
+.\objects\deserialize_if.o: User\Deserialize\deserialize_if.c
+.\objects\deserialize_if.o: .\User\project_cfg.h
+.\objects\deserialize_if.o: User\Deserialize\deserialize_if.h
+.\objects\deserialize_if.o: .\Device\headers\derivative.h
+.\objects\deserialize_if.o: .\Device\headers\SKEAZ1284.h
+.\objects\deserialize_if.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\deserialize_if.o: .\CMSIS\core_cm0plus.h
+.\objects\deserialize_if.o: .\CMSIS\core_cmInstr.h
+.\objects\deserialize_if.o: .\CMSIS\core_cmFunc.h
+.\objects\deserialize_if.o: .\Device\headers\system_SKEAZ1284.h
+.\objects\deserialize_if.o: .\Device\headers\typedefs.h
+.\objects\deserialize_if.o: User\Deserialize\deserialize_ctrl.h
+.\objects\deserialize_if.o: User\Deserialize\../LED/LED_if.h

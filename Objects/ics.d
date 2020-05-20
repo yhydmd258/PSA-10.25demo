@@ -1,0 +1,10 @@
+.\objects\ics.o: Library\sources\ics.c
+.\objects\ics.o: .\Library\headers\ics.h
+.\objects\ics.o: .\Device\headers\derivative.h
+.\objects\ics.o: .\Device\headers\SKEAZ1284.h
+.\objects\ics.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\ics.o: .\CMSIS\core_cm0plus.h
+.\objects\ics.o: .\CMSIS\core_cmInstr.h
+.\objects\ics.o: .\CMSIS\core_cmFunc.h
+.\objects\ics.o: .\Device\headers\system_SKEAZ1284.h
+.\objects\ics.o: .\Device\headers\typedefs.h

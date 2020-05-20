@@ -1,0 +1,16 @@
+.\objects\ftm_ctrl.o: User\FTM\FTM_ctrl.c
+.\objects\ftm_ctrl.o: .\User\project_cfg.h
+.\objects\ftm_ctrl.o: User\FTM\../Command/command.h
+.\objects\ftm_ctrl.o: .\Device\headers\derivative.h
+.\objects\ftm_ctrl.o: .\Device\headers\SKEAZ1284.h
+.\objects\ftm_ctrl.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\ftm_ctrl.o: .\CMSIS\core_cm0plus.h
+.\objects\ftm_ctrl.o: .\CMSIS\core_cmInstr.h
+.\objects\ftm_ctrl.o: .\CMSIS\core_cmFunc.h
+.\objects\ftm_ctrl.o: .\Device\headers\system_SKEAZ1284.h
+.\objects\ftm_ctrl.o: .\Device\headers\typedefs.h
+.\objects\ftm_ctrl.o: User\FTM\FTM_ctrl.h
+.\objects\ftm_ctrl.o: .\Library\headers\FTM.h
+.\objects\ftm_ctrl.o: .\Library\headers\nvic.h
+.\objects\ftm_ctrl.o: User\FTM\FTM_if.h
+.\objects\ftm_ctrl.o: .\Library\headers\gpio.h

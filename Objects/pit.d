@@ -1,0 +1,11 @@
+.\objects\pit.o: Library\sources\pit.c
+.\objects\pit.o: .\Library\headers\pit.h
+.\objects\pit.o: .\Device\headers\derivative.h
+.\objects\pit.o: .\Device\headers\SKEAZ1284.h
+.\objects\pit.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\pit.o: .\CMSIS\core_cm0plus.h
+.\objects\pit.o: .\CMSIS\core_cmInstr.h
+.\objects\pit.o: .\CMSIS\core_cmFunc.h
+.\objects\pit.o: .\Device\headers\system_SKEAZ1284.h
+.\objects\pit.o: .\Device\headers\typedefs.h
+.\objects\pit.o: .\Library\headers\nvic.h

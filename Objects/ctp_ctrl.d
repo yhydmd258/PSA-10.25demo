@@ -1,0 +1,17 @@
+.\objects\ctp_ctrl.o: User\CTP\CTP_ctrl.c
+.\objects\ctp_ctrl.o: .\User\project_cfg.h
+.\objects\ctp_ctrl.o: D:\MDK\ARM\ARMCC\Bin\..\include\string.h
+.\objects\ctp_ctrl.o: User\CTP\CTP_if.h
+.\objects\ctp_ctrl.o: .\Device\headers\derivative.h
+.\objects\ctp_ctrl.o: .\Device\headers\SKEAZ1284.h
+.\objects\ctp_ctrl.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\ctp_ctrl.o: .\CMSIS\core_cm0plus.h
+.\objects\ctp_ctrl.o: .\CMSIS\core_cmInstr.h
+.\objects\ctp_ctrl.o: .\CMSIS\core_cmFunc.h
+.\objects\ctp_ctrl.o: .\Device\headers\system_SKEAZ1284.h
+.\objects\ctp_ctrl.o: .\Device\headers\typedefs.h
+.\objects\ctp_ctrl.o: User\CTP\CTP_ctrl.h
+.\objects\ctp_ctrl.o: User\CTP\CTP_data.h
+.\objects\ctp_ctrl.o: User\CTP\atmel_1189.h
+.\objects\ctp_ctrl.o: User\CTP\CTP_ctrl.h
+.\objects\ctp_ctrl.o: .\User\Command/command.h

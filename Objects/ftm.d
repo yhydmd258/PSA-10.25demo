@@ -1,0 +1,11 @@
+.\objects\ftm.o: Library\sources\ftm.c
+.\objects\ftm.o: .\Library\headers\ftm.h
+.\objects\ftm.o: .\Device\headers\derivative.h
+.\objects\ftm.o: .\Device\headers\SKEAZ1284.h
+.\objects\ftm.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\ftm.o: .\CMSIS\core_cm0plus.h
+.\objects\ftm.o: .\CMSIS\core_cmInstr.h
+.\objects\ftm.o: .\CMSIS\core_cmFunc.h
+.\objects\ftm.o: .\Device\headers\system_SKEAZ1284.h
+.\objects\ftm.o: .\Device\headers\typedefs.h
+.\objects\ftm.o: .\Library\headers\nvic.h

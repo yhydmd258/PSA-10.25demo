@@ -1,0 +1,16 @@
+.\objects\atmel_1189.o: User\CTP\atmel_1189.c
+.\objects\atmel_1189.o: .\User\project_cfg.h
+.\objects\atmel_1189.o: D:\MDK\ARM\ARMCC\Bin\..\include\string.h
+.\objects\atmel_1189.o: User\CTP\atmel_1189.h
+.\objects\atmel_1189.o: .\Device\headers\derivative.h
+.\objects\atmel_1189.o: .\Device\headers\SKEAZ1284.h
+.\objects\atmel_1189.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\atmel_1189.o: .\CMSIS\core_cm0plus.h
+.\objects\atmel_1189.o: .\CMSIS\core_cmInstr.h
+.\objects\atmel_1189.o: .\CMSIS\core_cmFunc.h
+.\objects\atmel_1189.o: .\Device\headers\system_SKEAZ1284.h
+.\objects\atmel_1189.o: .\Device\headers\typedefs.h
+.\objects\atmel_1189.o: User\CTP\CTP_ctrl.h
+.\objects\atmel_1189.o: .\Library\headers\I2C.h
+.\objects\atmel_1189.o: .\Library\headers\nvic.h
+.\objects\atmel_1189.o: .\Library\headers\GPIO.h

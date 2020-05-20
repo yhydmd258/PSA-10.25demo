@@ -1,0 +1,11 @@
+.\objects\clk.o: User\CLK\CLK.c
+.\objects\clk.o: User\CLK\CLK.h
+.\objects\clk.o: .\Device\headers\derivative.h
+.\objects\clk.o: .\Device\headers\SKEAZ1284.h
+.\objects\clk.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\clk.o: .\CMSIS\core_cm0plus.h
+.\objects\clk.o: .\CMSIS\core_cmInstr.h
+.\objects\clk.o: .\CMSIS\core_cmFunc.h
+.\objects\clk.o: .\Device\headers\system_SKEAZ1284.h
+.\objects\clk.o: .\Device\headers\typedefs.h
+.\objects\clk.o: .\Library\headers\../Headers/ics.h

@@ -126,7 +126,7 @@ void LCD_Ctrl_Register_Set(void)
         LCD_Data_Register_Write(LCD_SID_MASTER, reg_set[i].reg_address, reg_set[i].reg_data);
     }
 	
-#if 1
+#if 0
     /* read data from LCD IC */
     for(i=0; i<reg_set_size; i++)
     {

@@ -27,7 +27,7 @@
 /**********************************************************************************************
 * Constants and macros
 **********************************************************************************************/
-#define FTM2_MODULE_VALUE               12499  /*	200 Hz/ 5 ms duty cycle PWM */
+#define FTM2_MODULE_VALUE              12499  /*	200 Hz/ 5 ms duty cycle PWM */
 #define FTM2_CHANNEL0_CNV_DEFAULT      12500
 #define FTM2_CHANNEL0_PWM_MULTIPLE     125     /* It's percent; 12500/100=125  */
 

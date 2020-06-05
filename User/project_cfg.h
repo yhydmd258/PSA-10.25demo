@@ -17,7 +17,6 @@
 ********************************************************************************/
 
 #define     PIT_MODULE
-//#define     DEBUG
 #define     FTM_MODULE   
 
 #define     CTP_MODULE          

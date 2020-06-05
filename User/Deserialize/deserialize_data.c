@@ -209,6 +209,7 @@ OUTPUT_SET(PTH,PTH0);
     OUTPUT_SET(PTD,PTD7);
     CONFIG_PIN_AS_GPIO(PTA,PTA1,OUTPUT); /* Configure DES_HIM(PTA1) as an output,High-Immunity Mode active-high */
     OUTPUT_CLEAR(PTA,PTA1); //1
+//	OUTPUT_SET(PTA,PTA1);
 	
     CONFIG_PIN_AS_GPIO(PTF,PTF0,OUTPUT); /* Configure DES_SSEN(PTF0) as an output,
                                            low to use the LVDS and control outputs without spread spectrum. */

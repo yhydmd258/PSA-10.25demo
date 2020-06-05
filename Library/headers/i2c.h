@@ -63,7 +63,8 @@ extern "C" {
 #define I2C_SEND_ACK                    0						/*!< I2C send ACK */
 #define I2C_SEND_NACK                   1						/*!< I2C send NACK */
 
-#define I2C_WAIT_STATUS_TIMEOUT         200000
+//#define I2C_WAIT_STATUS_TIMEOUT       200000
+#define I2C_WAIT_STATUS_TIMEOUT         250
 /******************************************************************************
 * define I2C error state
 *

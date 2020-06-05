@@ -266,9 +266,9 @@ void CTP_Data_Cmd_make(TOUCH_COORDINATE_BUF *touch_data)
                 cmd_data[cmd_data_postion] = EVENT_CODE_DOWNSUP;
                 break;
             case EVENT_CODE_DOWNUP:
-				flag=1;
-             //   cmd_data[cmd_data_postion] = EVENT_CODE_DOWNUP;
-             	cmd_data[cmd_data_postion] = EVENT_CODE_DOWN;
+				//flag=1;
+                cmd_data[cmd_data_postion] = EVENT_CODE_DOWNUP;
+           //	cmd_data[cmd_data_postion] = EVENT_CODE_DOWN;
                 break;
             case EVENT_CODE_NO_EVENT:
             default:

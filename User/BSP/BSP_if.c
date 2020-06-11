@@ -52,7 +52,7 @@
 void Bsp_If_Init(void)
 {
 #ifdef  CTP_MODULE
-	   CTP_If_Init();
+	   CTP_If_Init();		
 #endif 
 #ifdef  DESERIALIZE_MODULE
   Deserialize_If_Init();
@@ -63,16 +63,10 @@ void Bsp_If_Init(void)
 #ifdef FTM_MODULE
 	FTM_If_Init();
 #endif
-#ifdef  CTP_MODULE
-	CTP_If_Touch_Init();/*the time which start power on to execute this function > 90ms */
-#endif
 #ifdef LED_MODULE
 	LED_If_Init();
 #endif
 
 //	PIT_If_Init();
-
-     
-
 
 }

@@ -1,12 +1,3 @@
-#include "project_cfg.h" 
-#ifdef  CTP_MODULE
-#ifndef  _CTP_CTRL_H_
-#define _CTP_CTRL_H_
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /******************************************************************************								
 *  Name: .c
 *  Description: 
@@ -17,6 +8,15 @@ extern "C" {
 *  MCU: S9KEAZ128AMLH
 *  Comment:
 ******************************************************************************/		
+#include "project_cfg.h" 
+#ifdef  CTP_MODULE
+
+#ifndef  CTP_CTRL_H_
+#define CTP_CTRL_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**********************************************************************************************
 * External objects
@@ -26,18 +26,10 @@ extern "C" {
 /**********************************************************************************************
 * Constants and macros
 **********************************************************************************************/
-#define CTP_IC  I2C1
-#define COORDINATE_BUF_NUMBER 100
+
 /**********************************************************************************************
 * Global variables
 **********************************************************************************************/
-typedef struct
-{
-    UINT8 write_pos;
-    UINT8 read_pos;
-    UINT8 buf[COORDINATE_BUF_NUMBER][6];
-    UINT8 action;
-}TOUCH_COORDINATE_BUF;
 
 /**********************************************************************************************
 * Local types
@@ -52,21 +44,22 @@ typedef struct
 * Global functions
 **********************************************************************************************/
 extern void CTP_Ctrl_Init(void);
-extern void CTP_Ctrl_Standby_Set(UINT8 standby_state);
-
-extern void CTP_Ctrl_Touch_Init(void);
-
-extern void CTP_Ctrl_Task(void);
-
+extern void CTP_Ctrl_Deinit(void);
+extern void CTP_Ctrl_Status_Check(void);
+extern uint8_t CTP_Ctrl_Fault_Check(void);
+extern uint32_t CTP_Ctrl_Version_Read(void);
+extern void CTP_Ctrl_Cmd_Analyse(uint8_t *cmd_buf, uint8_t cmd_size);
+extern void CTP_Ctrl_Msg_Read(void);
 extern void CTP_Ctrl_Cmd_Make(void);
-
-extern void CTP_Ctrl_Cmd_Send(UINT8* data, UINT8 data_size);
-
-extern void CTP_Ctrl_Des_Set_Cds(UINT8 level);
+extern void CTP_Ctrl_Cmd_Send_Save(uint8_t* data,uint8_t data_size,uint8_t repeat,uint8_t *extend_data,uint8_t extend_size);
+extern void CTP_Ctrl_Int_Flag_Set(uint8_t flag);
+extern uint8_t CTP_Ctrl_Int_Flag_Get(void);
+extern void CTP_Ctrl_Cmd_Response(void);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* _CTP_CTRL_H_ */
+
 #endif /* CTP_MODULE */

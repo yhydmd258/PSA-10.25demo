@@ -690,19 +690,14 @@
               <FilePath>.\User\FTM\FTM_if.c</FilePath>
             </File>
             <File>
-              <FileName>atmel_1189.c</FileName>
+              <FileName>deserialize_data.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\User\CTP\atmel_1189.c</FilePath>
+              <FilePath>.\User\Deserialize\deserialize_data.c</FilePath>
             </File>
             <File>
               <FileName>deserialize_ctrl.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\Deserialize\deserialize_ctrl.c</FilePath>
-            </File>
-            <File>
-              <FileName>deserialize_data.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\Deserialize\deserialize_data.c</FilePath>
             </File>
             <File>
               <FileName>deserialize_if.c</FileName>

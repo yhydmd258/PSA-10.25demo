@@ -19,7 +19,7 @@
 #define     PIT_MODULE
 #define     FTM_MODULE   
 
-#define     CTP_MODULE          
+#define     CTP_MODULE
 #define     LCD_MODULE          
 #define     LED_MODULE          
 #define     DESERIALIZE_MODULE

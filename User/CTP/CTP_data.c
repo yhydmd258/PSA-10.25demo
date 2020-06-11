@@ -1,5 +1,3 @@
-#include "project_cfg.h" 
-#ifdef  CTP_MODULE
 /******************************************************************************								
 *  Name: .c
 *  Description: 
@@ -10,12 +8,16 @@
 *  MCU: S9KEAZ128AMLH
 *  Comment:
 ******************************************************************************/		
+#include "project_cfg.h" 
+#ifdef  CTP_MODULE
+    
 #include <stdio.h>
 #include <string.h>
 #include "CTP_ctrl.h"
+#include "CTP_data.h"
+#include "../Command/command.h"
 #include "I2C.h"
 #include "GPIO.h"
-#include "Command/command.h"
 
 /**********************************************************************************************
 * External objects
@@ -28,9 +30,18 @@
 /**********************************************************************************************
 * Constants and macros
 **********************************************************************************************/
-#define CTP_MASTER_SEND_TO_SLAVE   0x94    /* the slave is ATMEL 1189T */
-#define CTP_MASTER_READ_FROM_SLAVE  0x95    /* the slave is ATMEL 1189T */
-#define CTP_IC_SLAVE_ADDRESS    0x4A
+typedef enum
+{
+    UNGRIP_EVENT    =0x01
+    , SUPPRESS_EVENT=0x02
+    , AMP_EVENT     =0x04
+    , VECTOR_EVENT =0x08
+    , MOVE_EVENT    =0x10
+    , RELEASE_EVENT =0x20
+    , PRESS_EVENT   =0x40
+    , DETECT_EVENT  =0x80
+}TOUCH_EVENT_ID;
+
 /**********************************************************************************************
 * Local types
 **********************************************************************************************/
@@ -47,8 +58,7 @@
 /**********************************************************************************************
 * Local functions
 **********************************************************************************************/
-static void CTP_Data_GPIO_Cfg(void);
-static void CTP_Data_Enable_CHG(void);
+// static void CTP_Data_GPIO_Cfg(void);
 
 /**********************************************************************************************
 * Global functions
@@ -58,17 +68,18 @@ static void CTP_Data_Enable_CHG(void);
 
 /***********************************************************************************************
 *
-* @brief    deserialize_if_init() - Program entry function
+* @brief    initialize the CTP module
 * @param    none
 * @return   none
 *
 ************************************************************************************************/
 void CTP_Data_Init(void)
 {
-    I2C_ConfigType  I2C_Config = {{0}};  
-	/* start CTP IC*/
-	CTP_Data_GPIO_Cfg();
-	CTP_Data_Enable_CHG();
+    I2C_ConfigType  I2C_Config = {{0}};
+
+    /* start CTP IC*/
+//    CTP_Data_GPIO_Cfg();
+    
     /* Initialize I2C module with interrupt mode */
     I2C_Config.u16Slt = 0x0000;
 //    I2C_Config.u16F = 0x0090; /* Baud rate at 100Kbps, MULT=4,  SCL divider=48, 20M/(MULT*divider) */
@@ -76,291 +87,280 @@ void CTP_Data_Init(void)
     I2C_Config.sSetting.bMSTEn = 1;
     I2C_Config.sSetting.bIntEn = 0;
     I2C_Config.sSetting.bI2CEn = 1;
-//    I2C1_SetCallBack(CTP_I2C1_ISR_CallBack);
-    I2C_Init(CTP_IC, &I2C_Config);
-	Disable_Interrupt(I2C1_IRQn);
 
+    I2C_Init(CTP_IC, &I2C_Config);
 //    I2C_ClearStatus(CTP_IC,I2C_S_IICIF_MASK);
 }
 
 /***********************************************************************************************
 *
-* @brief    deserialize_if_init() - Program entry function
+* @brief    Deinitialize the CTP module
 * @param    none
 * @return   none
 *
 ************************************************************************************************/
-void CTP_Data_Reset_Clear(void)
+void CTP_Data_Deinit(void)
 {
-    OUTPUT_CLEAR(PTG,PTG1); 
+    I2C_Deinit(CTP_IC);
+//    CTP_Data_Reset_Set(0);
+//    OUTPUT_CLEAR(PTG,PTG1); 
+
+//    CONFIG_PIN_AS_GPIO(PTE, PTE0, INPUT);
+//    CONFIG_PIN_AS_GPIO(PTE, PTE1, INPUT);
+
+//    CONFIG_PIN_AS_GPIO(PTG, PTG0, INPUT);
 }
+
 /***********************************************************************************************
 *
-* @brief    deserialize_if_init() - Program entry function
-* @param    none
-* @return   none
+* @brief    send the data to the CTP IC
+* @param    send_data : the pointer of the send data
+                 data_size : ths size of the send data
+* @return   0: OK; other: error
 *
 ************************************************************************************************/
-void CTP_Data_Master_Send(UINT8 *send_data, UINT32 data_size)
+uint8_t CTP_Data_Master_Send(uint8_t *send_data, uint32_t data_size)
 {
     if((NULL==send_data) || (0 == data_size))
-        return;
+        return 1;
 
     /* send data */
 //    I2C_IntDisable(CTP_IC);
-    I2C_MasterSendWait(CTP_IC,CTP_IC_SLAVE_ADDRESS<<0x01,&send_data[0],data_size);
+    return I2C_MasterSendWait(CTP_IC,CTP_IC_SLAVE_ADDRESS,&send_data[0],data_size);
 //    I2C_IntEnable(CTP_IC);
 }
 /***********************************************************************************************
 *
-* @brief    deserialize_if_init() - Program entry function
+* @brief    reg_addr : the address of the register
+                read_data : the pointer of the read data
+                data_size : the size of the read data
 * @param    none
-* @return   none
+* @return   0: read OK
+                other: read error
 *
 ************************************************************************************************/
-void CTP_Data_Master_Read(UINT8 *read_data, UINT32 data_size)
+uint8_t CTP_Data_Master_Read(uint8_t reg_addr, uint8_t *read_data, uint32_t data_size)
 {
-    if((NULL==read_data) || (0 == data_size))
-        return;
-    /* read data */
-//    I2C_IntDisable(CTP_IC);
-    I2C_MasterReadWait(CTP_IC,CTP_IC_SLAVE_ADDRESS<<0x01,read_data,data_size);
-//    I2C_IntEnable(CTP_IC);
-}
-/***********************************************************************************************
-*
-* @brief    deserialize_if_init() - Program entry function
-* @param    none
-* @return   none
-*
-************************************************************************************************/
-void CTP_Data_ISR_CallBack(void)
-{
+    uint8_t result=1;
     
+    if((NULL==read_data) || (0 == data_size))
+        return result;
+    
+    result = I2C_MasterSendWait(CTP_IC,CTP_IC_SLAVE_ADDRESS,&reg_addr,1);
+    if(I2C_ERROR_NULL == result)
+        result = I2C_MasterReadWait(CTP_IC,CTP_IC_SLAVE_ADDRESS,read_data,data_size);
+    
+    return result;
 }
 
 /***********************************************************************************************
 *
-* @brief    deserialize_if_init() - Program entry function
-* @param    none
+* @brief    the touch information is made the command according to the protocol of SX12  
+* @param    touch_data : the pointer of touch information
 * @return   none
 *
 ************************************************************************************************/
-void CTP_Data_Cmd_make(TOUCH_COORDINATE_BUF *touch_data)
+void CTP_Data_Cmd_Make(TOUCH_COORDINATE_BUF *touch_data)
 {
-    /*Event codes*/
-    #define EVENT_CODE_NO_EVENT     0x00/* No specific event has occured */   
-    #define EVENT_CODE_MOVE         0x01/*the touch position has changed*/
-    #define EVENT_CODE_UNSUP        0x02/*the touch has just been unsupppressed by 
-                                                                        the touch suppression features of other objects*/
-    #define EVENT_CODE_SUP          0x03/*the touch has been suppressed by 
-                                                                        the touch suppression features of other objects*/
-    #define EVENT_CODE_DOWN         0x04/*the touch has just come within range of the sensor*/
-    #define EVENT_CODE_UP           0x05/*the touch has just left the range of the sensor*/
-    #define EVENT_CODE_UNSUPSUP     0x06/*Both UNSUP and SUP events have occurred(in either order)*/
-    #define EVENT_CODE_UNSUPUP      0x07/*Both UNSUP and UP events have occurred(in either order)*/
-    #define EVENT_CODE_DOWNSUP      0x08/*Both DOWN and SUP events have occurred(in either order)*/
-    #define EVENT_CODE_DOWNUP       0x09/*Both DOWN and UP events have occurred(in either order)*/
-    /*touch type*/
-    #define TOUCH_TYPE_RESERVED         0x00/*Reserved for future use*/
-    #define TOUCH_TYPE_FINGER           0x01/*the touch is considered to be a finger that is contacting the screen*/
-    #define TOUCH_TYPE_PASSIVE_STYLUS  0x02/*the touch is a passive stylus*/
-    #define TOUCH_TYPE_HOVERING_FINGER 0x04/*the touch is a hovering finger*/
-    #define TOUCH_TYPE_GLOVE            0x05/*the touch is a glove touch. Note that touches will be reported as GLOVE events only
-                                                                                if the CTRL GLOVERPTEN bit in the Glove Detection T78 object is set to 1;
-                                                                                otherwise they will be reported as FINGER events*/
-    #define TOUCH_TYPE_LARGE_TOUCH      0x06/*the touch is a suppressed large touch. When the touch Suppression T42 CFG SUPTCHRPTEN
-                                                                                bit is set, a touch that would normally be suppressed is reported. When SUPTCHRPTEN is cleared,
-                                                                                the suppression method returns to normal behavior.*/
-    UINT8   cmd_data[13]={0};
-    UINT8   cmd_data_postion=0;
-    UINT8   temp_touch[6]={0};
-	UINT8   flag=0;
-	UINT16   temp_time;
-
-    if( (touch_data->read_pos+1)%COORDINATE_BUF_NUMBER == touch_data->write_pos)
+    #define COMMAND_SIZE_MAX            21
+    #define EXTEND_COMMAND_SIZE_MAX    28
+    #define EVENT_RELEASE_REPEAT_TIME   2
+    
+    uint8_t   cmd_data[COMMAND_SIZE_MAX]={0};
+    uint8_t   extend_cmd_data[EXTEND_COMMAND_SIZE_MAX]={0};
+    uint8_t   repeat_time=0;
+    uint8_t   postion_offset=0;
+    uint8_t   temp_read_position=0;
+    uint8_t   number=0;
+        
+    if((touch_data->read_pos+1)%COORDINATE_BUF_NUMBER == touch_data->write_pos)
         return;
 
     /* start to communication with deserializer */
-//    CTP_Ctrl_Des_Set_Cds(1);
-    while((touch_data->read_pos+1)%COORDINATE_BUF_NUMBER != touch_data->write_pos)
+    while((touch_data->read_pos+1)%COORDINATE_BUF_NUMBER != touch_data->write_pos) 
     {
-        touch_data->read_pos=(touch_data->read_pos+1)%COORDINATE_BUF_NUMBER;
-        memcpy(temp_touch, touch_data->buf[touch_data->read_pos],sizeof(touch_data->buf[touch_data->read_pos]));
-        memset(cmd_data, 0x00, sizeof(cmd_data));
-        /*       t[0] = 0x79    sync
-                        t[1] = 0x6A   Device Adress 
-                        t[2] = 0x02   Register or information type
-                        t[3]             length of the follow data
-                        t[4]             report ID
-                        t[5]             touch type
-                        t[6]             event codes
-                        t[7] = 0x00   LSB of x coordinate
-                        t[8] = 0x00   MSB of x coordinate
-                        t[9] = 0x00   LSB of y coordinate
-                        t[10] = 0x00  MSB of y coordinate
-                        t[11] = 0x6A   end of data
-                        t[12] = 0x6A   end of data   */
-        // make the header of packet
-        cmd_data[cmd_data_postion]=COMMAND_SYNC; //D0
-        cmd_data_postion++;
-        cmd_data[cmd_data_postion]=COMMAND_DEV_ADDR; //D1
-        cmd_data_postion++;
-        cmd_data[cmd_data_postion]=COMMAND_ID_TOUCH; //D2
-        cmd_data_postion++;
-        cmd_data[cmd_data_postion]=0x00; //temp set ,after adding message, modify it,D3
-        
-        /*report ID*/
-        cmd_data_postion++;
-        cmd_data[cmd_data_postion]=temp_touch[0];   //D4
-        /*touch type*/
-        cmd_data_postion++;
-        switch((temp_touch[1]&0x70)>>0x04)
+        repeat_time=0;
+
+        memset(cmd_data, 0x00, COMMAND_SIZE_MAX);
+        /* make  touch position info standard command */
+        cmd_data[0] = CMD_SEND_ID_TP_POSITION;
+        for(number=0; number<TP_INFO_NUMBER_MAX; number++)
         {
-            case TOUCH_TYPE_FINGER:
-                cmd_data[cmd_data_postion] = TOUCH_TYPE_FINGER;   //D5
+            /* the read position */
+            temp_read_position = (touch_data->read_pos+1)%COORDINATE_BUF_NUMBER;
+            if(temp_read_position != touch_data->write_pos)
+            {
+                if((LIFT_OFF==touch_data->buf[temp_read_position].touch_ID_str.event_ID)&&(0!=number))
+                    break;
+                /* record the number of touch report */
+                cmd_data[1]++;
+                /* calculate the offset */
+                postion_offset = EVERY_TP_INFO_SIZE*number;
+                /* byte2 + offset : touch ID for No.(1+number) touch
+                                byte3 + offset : status for No.(1+number)
+                                byte4 + offset : X position MSByte for No.(1+number)
+                                byte5 + offset : X position LSByte for No.(1+number)
+                                byte6 + offset : Y position MSByte for No.(1+number)
+                                byte7 + offset : Y position LSByte for No.(1+number)
+                                byte8 + offset : reserved, Size of touch for No.(1+number)
+                                byte9 + offset : reserved, Touch amplitude for No.(1+number)
+                                byte10 + offset : reserved, Touch vector for No.(1+number)
+                                */
+                cmd_data[2+postion_offset] = touch_data->buf[temp_read_position].touch_ID_str.touch_ID;
+                switch(touch_data->buf[temp_read_position].touch_ID_str.event_ID)
+                {
+                    case TOUCH_DOWN:    /* QAC-9.6.0-0597 severity 5, ingore it */ /* QAC-9.6.0-0570 severity 5, ingore it */
+                        cmd_data[3+postion_offset] = PRESS_EVENT;
+                        break;
+                    case LIFT_OFF:      /* QAC-9.6.0-0597 severity 5, ingore it */ /* QAC-9.6.0-0570 severity 5, ingore it */
+                        cmd_data[3+postion_offset] = RELEASE_EVENT;
+                        repeat_time = EVENT_RELEASE_REPEAT_TIME;
+                        break;
+                    case MOVING:        /* QAC-9.6.0-0597 severity 5, ingore it */ /* QAC-9.6.0-0570 severity 5, ingore it */
+                    default:
+                        cmd_data[3+postion_offset] = MOVE_EVENT;
+                        break;
+                }
+                cmd_data[4+postion_offset] = touch_data->buf[temp_read_position].touch_x_MSB;
+                cmd_data[5+postion_offset] = touch_data->buf[temp_read_position].touch_x_LSB;
+                cmd_data[6+postion_offset] = touch_data->buf[temp_read_position].touch_y_MSB;
+                cmd_data[7+postion_offset] = touch_data->buf[temp_read_position].touch_y_LSB;
+                cmd_data[8+postion_offset] = 0;
+                cmd_data[9+postion_offset] = 0;
+                cmd_data[10+postion_offset] = 0;
+                /* record the read position */
+                touch_data->read_pos = temp_read_position;
+            }
+            else
+            {
                 break;
-            case TOUCH_TYPE_PASSIVE_STYLUS:
-                cmd_data[cmd_data_postion] = TOUCH_TYPE_PASSIVE_STYLUS;
-                break;
-            case TOUCH_TYPE_HOVERING_FINGER:
-                cmd_data[cmd_data_postion] = TOUCH_TYPE_HOVERING_FINGER;
-                break;
-            case TOUCH_TYPE_GLOVE:
-                cmd_data[cmd_data_postion] = TOUCH_TYPE_GLOVE;
-                break;
-            case TOUCH_TYPE_LARGE_TOUCH:
-                cmd_data[cmd_data_postion] = TOUCH_TYPE_LARGE_TOUCH;
-                break;
-            case TOUCH_TYPE_RESERVED:
-            default:
-                cmd_data[cmd_data_postion] = TOUCH_TYPE_RESERVED;
-                break;
+            }
         }
-        /* event codes */
-        cmd_data_postion++;
-        switch(temp_touch[1]&0x0F)   //D6
+        /* reserved */
+        cmd_data[COMMAND_SIZE_MAX-1] = 0;
+        
+        memset(extend_cmd_data, 0x00, EXTEND_COMMAND_SIZE_MAX);
+        /* make tp position info extended command */
+        extend_cmd_data[0] = CMD_SEND_ID_EXTENDED_TP_POS;
+        for(number=0; number<EXTEND_TP_INFO_NUMBER_MAX; number++)
         {
-            case EVENT_CODE_DOWN:
-                cmd_data[cmd_data_postion] = EVENT_CODE_DOWN;
+            /* the read position */
+            temp_read_position = (touch_data->read_pos+1)%COORDINATE_BUF_NUMBER;
+            /* the key touch report must not be included in the extended touch information */
+            if((temp_read_position != touch_data->write_pos)
+                && (LIFT_OFF!=touch_data->buf[temp_read_position].touch_ID_str.event_ID) )
+            {
+                /* record the number of touch report */
+                cmd_data[1]++;
+                /* calculate the offset */
+                postion_offset = EVERY_TP_INFO_SIZE*number;
+                /* byte1 + offset : touch ID for No.(1+number) touch
+                                byte2 + offset : status for No.(1+number)
+                                byte3 + offset : X position MSByte for No.(1+number)
+                                byte4 + offset : X position LSByte for No.(1+number)
+                                byte5 + offset : Y position MSByte for No.(1+number)
+                                byte6 + offset : Y position LSByte for No.(1+number)
+                                byte7 + offset : reserved, Size of touch for No.(1+number)
+                                byte8 + offset : reserved, Touch amplitude for No.(1+number)
+                                byte9 + offset : reserved, Touch vector for No.(1+number)
+                                */
+                extend_cmd_data[1+postion_offset] = touch_data->buf[temp_read_position].touch_ID_str.touch_ID;
+                switch(touch_data->buf[temp_read_position].touch_ID_str.event_ID)
+                {
+                    case TOUCH_DOWN:    /* QAC-9.6.0-0597 severity 5, ingore it */ /* QAC-9.6.0-0570 severity 5, ingore it */
+                        extend_cmd_data[2+postion_offset] = PRESS_EVENT;
+                        break;
+                    case LIFT_OFF:      /* QAC-9.6.0-0597 severity 5, ingore it */ /* QAC-9.6.0-0570 severity 5, ingore it */
+                        extend_cmd_data[2+postion_offset] = RELEASE_EVENT;
+                        break;
+                    case MOVING:        /* QAC-9.6.0-0597 severity 5, ingore it */ /* QAC-9.6.0-0570 severity 5, ingore it */
+                    default:
+                        extend_cmd_data[2+postion_offset] = MOVE_EVENT;
+                        break;
+                }
+                extend_cmd_data[3+postion_offset] = touch_data->buf[temp_read_position].touch_x_MSB;
+                extend_cmd_data[4+postion_offset] = touch_data->buf[temp_read_position].touch_x_LSB;
+                extend_cmd_data[5+postion_offset] = touch_data->buf[temp_read_position].touch_y_MSB;
+                extend_cmd_data[6+postion_offset] = touch_data->buf[temp_read_position].touch_y_LSB;
+                extend_cmd_data[7+postion_offset] = 0;
+                extend_cmd_data[8+postion_offset] = 0;
+                extend_cmd_data[9+postion_offset] = 0;
+                /* record the read position */
+                touch_data->read_pos = temp_read_position;
+            }
+            else
+            {
                 break;
-            case EVENT_CODE_UP:
-                cmd_data[cmd_data_postion] = EVENT_CODE_UP;
-                break;
-            case EVENT_CODE_MOVE:
-                cmd_data[cmd_data_postion] = EVENT_CODE_MOVE;
-                break;
-            case EVENT_CODE_UNSUP:
-                cmd_data[cmd_data_postion] = EVENT_CODE_UNSUP;
-                break;
-            case EVENT_CODE_SUP:
-                cmd_data[cmd_data_postion] = EVENT_CODE_SUP;
-                break;
-            case EVENT_CODE_UNSUPSUP:
-                cmd_data[cmd_data_postion] = EVENT_CODE_UNSUPSUP;
-                break;
-            case EVENT_CODE_UNSUPUP:
-                cmd_data[cmd_data_postion] = EVENT_CODE_UNSUPUP;
-                break;
-            case EVENT_CODE_DOWNSUP:
-                cmd_data[cmd_data_postion] = EVENT_CODE_DOWNSUP;
-                break;
-            case EVENT_CODE_DOWNUP:
-				//flag=1;
-                cmd_data[cmd_data_postion] = EVENT_CODE_DOWNUP;
-           //	cmd_data[cmd_data_postion] = EVENT_CODE_DOWN;
-                break;
-            case EVENT_CODE_NO_EVENT:
-            default:
-                cmd_data[cmd_data_postion] = EVENT_CODE_NO_EVENT;
-                break;
+            }
         }
-        /* x position */
-        cmd_data_postion++;
-        cmd_data[cmd_data_postion]=temp_touch[4];  //D7
-        cmd_data_postion++;
-        cmd_data[cmd_data_postion]=temp_touch[5];   //D8
-        /* y position */
-        cmd_data_postion++;
-        cmd_data[cmd_data_postion]=temp_touch[2];   //D9
-        cmd_data_postion++;
-        cmd_data[cmd_data_postion]=temp_touch[3];	//D10
-        cmd_data[3] += 7;
-        
-        // make the end of packet
-        cmd_data_postion++;
-        cmd_data[cmd_data_postion]=COMMAND_END_DATA;
-        cmd_data_postion++;
-        cmd_data[cmd_data_postion]=COMMAND_END_DATA;
-        cmd_data[3] += 2;
-        
-        CTP_Ctrl_Cmd_Send(cmd_data, cmd_data_postion+1);
-		if(flag)
-			{
-			temp_time=0x2FF;/*0.096ms*/
-			while(temp_time--);
-			cmd_data[6] = EVENT_CODE_UP;
-			CTP_Ctrl_Cmd_Send(cmd_data, cmd_data_postion+1);
-			flag=0;
-			}
-//        temp_time=0xC350;/* delay 10ms*/
-//        temp_time=0x2FF;/*0.096ms*/
-//        while(temp_time--);
+        /* send command */
+        if(number>0)
+            CTP_Ctrl_Cmd_Send_Save(cmd_data, COMMAND_SIZE_MAX, repeat_time, extend_cmd_data, EXTEND_COMMAND_SIZE_MAX);
+        else
+            CTP_Ctrl_Cmd_Send_Save(cmd_data, COMMAND_SIZE_MAX, repeat_time, NULL, 0);
     }
-    
-    /* stop to communication with deserializer */
-//    CTP_Ctrl_Des_Set_Cds(0);
 }
 
 /***********************************************************************************************
 *
-* @brief    deserialize_if_init() - Program entry function
+* @brief    level : 1( CTP IC power on )
+                        0( CTP IC power off )
 * @param    none
 * @return   none
 *
 ************************************************************************************************/
-UINT32 CTP_Data_Read_INT_Pin(void)
+void CTP_Data_Reset_Set(uint8_t level)
 {
-    return GPIO_READ_INPUT(PTG,PTG0);
+    if(level)
+        OUTPUT_SET(PTG,PTG1);
+    else
+        OUTPUT_CLEAR(PTG,PTG1);
 }
+
+#ifdef GEELY_SX11
 /***********************************************************************************************
 *
-* @brief    CTP_I2C1_GPIO_Cfg() - Program entry function
+* @brief    CTP power enable
+* @param    none
+* @return   none
+*
+************************************************************************************************/
+void CTP_Data_Power_En_Init(void)
+{
+    CONFIG_PIN_AS_GPIO(PTD, PTD4, OUTPUT);    /* CTP_EN , the enable pin of the CTP power */
+    OUTPUT_SET(PTD, PTD4);
+}
+
+/***********************************************************************************************
+*
+* @brief    CTP power disenable
+* @param    none
+* @return   none
+*
+************************************************************************************************/
+void CTP_Data_Power_En_Deinit(void)
+{
+    /* CTP_EN , the enable pin of the CTP power */
+    OUTPUT_CLEAR(PTD, PTD4);
+    /* CTP _reset, low */
+    CTP_Data_Reset_Set(0);
+}
+#endif
+
+
+#if 0
+/***********************************************************************************************
+*
+* @brief    configure the GPIO
 * @param    none
 * @return   none
 *
 ************************************************************************************************/
 static void CTP_Data_GPIO_Cfg(void)
 {
-	UINT32 i;
-
-    /* CTP IC reset  set low*/
+    /* CTP IC reset  set high*/
     CONFIG_PIN_AS_GPIO(PTG,PTG1,OUTPUT); 
-    OUTPUT_CLEAR(PTG,PTG1); 
-        
-    /* CTP power on */
-    CONFIG_PIN_AS_GPIO(PTH,PTH6,OUTPUT); 
-    OUTPUT_SET(PTH,PTH6);
-	     
-	i=0x0000b000;	
-    while(i--);//  delay 
-
-    /* CTP IC reset set high*/
-    OUTPUT_SET(PTG,PTG1);
-
+    OUTPUT_SET(PTG,PTG1); 
 }
-
-/***********************************************************************************************
-*
-* @brief    deserialize_if_init() - Program entry function
-* @param    none
-* @return   none
-*
-************************************************************************************************/
-static void CTP_Data_Enable_CHG(void)
-{
-    CONFIG_PIN_AS_GPIO(PTG,PTG0,INPUT);
-    GPIO_ENABLE_INPUT(PTG,PTG0);
-	ENABLE_PULLUP(PTG,PTG0);
-}
+#endif
 #endif /* CTP_MODULE */

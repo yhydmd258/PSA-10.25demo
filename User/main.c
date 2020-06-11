@@ -64,7 +64,6 @@ int main(void)
 {
 	Clk_Init();
 	Bsp_If_Init();
-//	LED_If_Set_Backlight(20);
 	 while(1)
 	 	{
 #ifdef  CTP_MODULE
@@ -72,12 +71,6 @@ int main(void)
 #endif
 #ifdef LED_MODULE
 	LED_If_Task();
-//	debug_if_2s_task();
-#endif
-#ifdef LCD_MODULE
-#ifdef DEBUG
-//	LCD_If_Task();
-#endif
 #endif
 		}
 }

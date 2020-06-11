@@ -1,12 +1,3 @@
-#include "project_cfg.h" 
-#ifdef  CTP_MODULE
-#ifndef _CTP_IF_H_
-#define _CTP_IF_H_
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /******************************************************************************								
 *  Name: .c
 *  Description: 
@@ -17,7 +8,17 @@ extern "C" {
 *  MCU: S9KEAZ128AMLH
 *  Comment:
 ******************************************************************************/		
-#include "derivative.h" /* include peripheral declarations */
+#include "project_cfg.h" 
+#ifdef  CTP_MODULE
+
+#ifndef CTP_IF_H_
+#define CTP_IF_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "derivative.h" 
 
 /**********************************************************************************************
 * External objects
@@ -56,21 +57,21 @@ extern "C" {
 * Global functions
 **********************************************************************************************/
 extern void CTP_If_Init(void);
-extern void CTP_If_2ms_Task(void);
-extern void CTP_If_Touch_Init(void);
-extern void CTP_If_Standby_Set(UINT8 standby_state);
-
+extern void CTP_If_Deinit(void);
+extern uint32_t CTP_If_Version_Read(void);
 extern void CTP_If_Task(void);
-
+extern void CTP_If_8ms_Task(void);
 extern void CTP_If_Touch_Interrupt_Notice(void);
-
-extern void CTP_If_Cmd_Send(UINT8* data, UINT8 data_size);
-
-extern void CTP_If_Des_Set_Cds(UINT8 level);
+extern uint8_t CTP_If_Fault_Check(void);
+extern void CTP_If_Cmd_Send_Save(uint8_t* data,uint8_t data_size,uint8_t repeat,uint8_t *extend_data,uint8_t extend_size);
+extern void CTP_If_Cmd_Analyse(uint8_t *cmd_buf, uint8_t cmd_size);
+extern void CTP_If_Vol_Increase_Set(uint8_t level);
+extern void CTP_If_Vol_Decrease_Set(uint8_t level);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* _CTP_IF_H_ */
+
 #endif /* CTP_MODULE */

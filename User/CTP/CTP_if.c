@@ -1,5 +1,3 @@
-#include "project_cfg.h" 
-#ifdef  CTP_MODULE
 /******************************************************************************								
 *  Name: .c
 *  Description: 
@@ -10,16 +8,17 @@
 *  MCU: S9KEAZ128AMLH
 *  Comment:
 ******************************************************************************/		
-#ifdef  DESERIALIZE_MODULE
-#include "../Deserialize/deserialize_if.h"
-#ifdef DEBUG
-#include "../Deserialize/deserialize_uart.h"
-#endif
-#endif  
+#include "project_cfg.h" 
+#ifdef  CTP_MODULE
 
 #include "CTP_if.h"
 #include "CTP_ctrl.h"
-#include "../PIT/pit_if.h"
+#include "../Command/command.h"
+#include "../Timer/timer_if.h"
+
+#ifdef  DESERIALIZE_MODULE
+#include "../Deserialize/deserialize_if.h"
+#endif  
 #ifdef LED_MODULE
 #include "../LED/LED_if.h"
 #endif
@@ -62,7 +61,7 @@
 
 /***********************************************************************************************
 *
-* @brief    CTP_If_Init() - Program entry function
+* @brief    initialize the CTP module
 * @param    none
 * @return   none
 *
@@ -74,102 +73,148 @@ void CTP_If_Init(void)
 
 /***********************************************************************************************
 *
-* @brief    CTP_If_Init() - Program entry function
+* @brief    Deinitialize the CTP module
 * @param    none
 * @return   none
 *
 ************************************************************************************************/
-void CTP_If_2ms_Task(void)
+void CTP_If_Deinit(void)
 {
-//    CTP_Ctrl_Cmd_Make();
+    CTP_Ctrl_Deinit();
 }
 
 /***********************************************************************************************
 *
-* @brief    CTP_If_Init() - Program entry function
-* @param    none
-* @return   none
-*
-************************************************************************************************/
-void CTP_If_Touch_Init(void)
-{
-    CTP_Ctrl_Touch_Init();
-}
-
-/***********************************************************************************************
-*
-* @brief    CTP_If_Init() - Program entry function
-* @param    none
-* @return   none
-*
-************************************************************************************************/
-void CTP_If_Standby_Set(UINT8 standby_state)
-{
-    CTP_Ctrl_Standby_Set(standby_state);
-}
-/***********************************************************************************************
-*
-* @brief    CTP_If_Init() - Program entry function
+* @brief    KBI interrupt, CTP IC notices the module to read the message
 * @param    none
 * @return   none
 *
 ************************************************************************************************/
 void CTP_If_Touch_Interrupt_Notice(void)
 {
+//    CTP_Ctrl_Int_Flag_Set(CTP_Ctrl_Int_Flag_Get()+1);
+    CTP_Ctrl_Int_Flag_Set(1);
+    CTP_Ctrl_Msg_Read();
 }
 
 /***********************************************************************************************
 *
-* @brief    CTP_If_Init() - Program entry function
+* @brief    return the version of the touch IC
+* @param    none
+* @return   uint32_t&0xFF000000 : Firmware Major
+                uint32_t&0x00FF0000 : Firmware Minor
+                uint32_t&0x0000FF00 : Configuration version MSB
+                uint32_t&0x000000FF : Configuration version LSB
+*
+************************************************************************************************/
+uint32_t CTP_If_Version_Read(void)
+{
+    return CTP_Ctrl_Version_Read();
+}
+
+/***********************************************************************************************
+*
+* @brief    task function, make the command and send to deserializer module
 * @param    none
 * @return   none
 *
 ************************************************************************************************/
 void CTP_If_Task(void)
 {
-    CTP_Ctrl_Task();//if inpin is low,read data from CTP IC
+    CTP_Ctrl_Status_Check();
+    /* read the touch report */
+//    CTP_Ctrl_Msg_Read();
+    
+    /* make the command according to the touch report, and send it to deserizlizer */
     CTP_Ctrl_Cmd_Make();
+
+    /* analyse the command and response the command */
+    CTP_Ctrl_Cmd_Response();
 }
 
 /***********************************************************************************************
 *
-* @brief    CTP_If_Init() - Program entry function
+* @brief    this task is called every 8ms, read the message from the touch IC
 * @param    none
 * @return   none
 *
 ************************************************************************************************/
-void CTP_If_Cmd_Send(UINT8* data, UINT8 data_size)
+void CTP_If_8ms_Task(void)
 {
-#ifdef  DESERIALIZE_MODULE
-#if 1
-    Deserialize_If_Cmd_Send(data, data_size);
-#else
-                         /*  10%     10%,    15%,   20%,   25%,   30%,   35%,   40%,    45%,  50%,
-                                               55%,    60%,   65%,   70%,   75%,   80%,   85%,    90%,    95%   95%*/
-    UINT8   backlight[20]={0x0A,0x0A,0x0F,0x14,0x19,0x1E,0x23,0x28,0x2D,0x32,
-                            0x37,0x3C,0x41,0x46,0x4B,0x50,0x55,0x5A,0x5F,0x5F};
-    UINT8   backlight_index=0;
-    UINT16  coordinate_x=0;
-    
-    coordinate_x = data[10]*256+data[9];
-    backlight_index = coordinate_x/100;
-    
-    LED_If_Set_Backlight(backlight[backlight_index]);
-#endif
+//    CTP_Ctrl_Msg_Read();
+}
+
+/***********************************************************************************************
+*
+* @brief    check the CTP is OK or not.
+* @param    none
+* @return   TRUE: OK
+*               FALSE: abnormal
+*
+************************************************************************************************/
+uint8_t CTP_If_Fault_Check(void)
+{
+    /* CTP IC is CYAT81688-100AS61, Error pin36(P1[4]) in CTP IC don't connected to PCBA by Hardware,
+           so the status is TRUE when check fault */
+    return CTP_Ctrl_Fault_Check();
+}
+
+/***********************************************************************************************
+*
+* @brief      save the command data which will be sent
+* @param     data: the data need to be made into standard frame
+                data_size:  the size of the data need to be made into standard frame
+                repeat: the repeat times of the data need to be sent
+                extend_data: the data need to be made into extended frame
+                extend_size: the size of the data need to be made into extended frame
+* @return   none
+*
+************************************************************************************************/
+void CTP_If_Cmd_Send_Save(uint8_t* data,uint8_t data_size,uint8_t repeat,uint8_t *extend_data,uint8_t extend_size)
+{
+#ifdef DESERIALIZE_MODULE
+    Deserialize_If_Send_Cmd_Save(data, data_size, repeat, extend_data, extend_size);
 #endif
 }
 
 /***********************************************************************************************
 *
-* @brief    CTP_If_Des_Set_Cds()
-* @param    none
+* @brief    analyse the command
+* @param    cmd_buf: the pointer of command
+                  cmd_size: command size
 * @return   none
 *
 ************************************************************************************************/
-void CTP_If_Des_Set_Cds(UINT8 level)
+void CTP_If_Cmd_Analyse(uint8_t *cmd_buf, uint8_t cmd_size)
 {
-#ifdef  DESERIALIZE_MODULE
-    Deserialize_If_Set_Cds(level);
+    CTP_Ctrl_Cmd_Analyse(cmd_buf, cmd_size);
+}
+
+/***********************************************************************************************
+*
+* @brief      set the key of VOLUME+_3V3(PTE2)
+* @param    level, 0: set low; other: set high;
+* @return   none
+*
+************************************************************************************************/
+void CTP_If_Vol_Increase_Set(uint8_t level)
+{
+#ifdef KEY_MODULE
+    Key_If_Vol_Increase_Set(level);
+#endif
+}
+
+/***********************************************************************************************
+*
+* @brief      set the key of VOLUME-_3V3(PTE2)
+* @param    level, 0: set low; other: set high;
+* @return   none
+*
+************************************************************************************************/
+void CTP_If_Vol_Decrease_Set(uint8_t level)
+{
+#ifdef KEY_MODULE
+    Key_If_Vol_Decrease_Set(level);
 #endif
 }
 

@@ -724,6 +724,11 @@
               <FileType>1</FileType>
               <FilePath>.\User\CTP\CTP_if.c</FilePath>
             </File>
+            <File>
+              <FileName>KBI_if.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\KBI\KBI_if.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

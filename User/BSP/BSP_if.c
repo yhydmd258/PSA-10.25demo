@@ -50,12 +50,9 @@
 *
 ************************************************************************************************/
 void Bsp_If_Init(void)
-{
-#ifdef  CTP_MODULE
-	   CTP_If_Init();		
-#endif 
+{ 
 #ifdef  DESERIALIZE_MODULE
-  Deserialize_If_Init();
+ 	Deserialize_If_Init();
 #endif
 #ifdef LCD_MODULE
 	LCD_If_Init();
@@ -66,7 +63,11 @@ void Bsp_If_Init(void)
 #ifdef LED_MODULE
 	LED_If_Init();
 #endif
-
-//	PIT_If_Init();
+#ifdef PIT_MODULE
+	PIT_If_Init();
+#endif
+#ifdef  CTP_MODULE
+	CTP_If_Init();		
+#endif
 
 }

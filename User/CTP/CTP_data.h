@@ -43,6 +43,8 @@ extern "C" {
 #define RESET_MASK          0x01
 #define RESET_SHIFT         0
 
+#define CTP_IC        I2C1
+
 /* TOUCH TYPE */
 typedef enum
 {
@@ -164,10 +166,8 @@ extern uint8_t CTP_Data_Master_Send(uint8_t *send_data, uint32_t data_size);
 extern uint8_t CTP_Data_Master_Read(uint8_t reg_addr, uint8_t *read_data, uint32_t data_size);
 extern void CTP_Data_Cmd_Make(TOUCH_COORDINATE_BUF *data);
 extern void CTP_Data_Reset_Set(uint8_t level);
-#ifdef GEELY_SX11
 extern void CTP_Data_Power_En_Init(void);
 extern void CTP_Data_Power_En_Deinit(void);
-#endif
 
 #ifdef __cplusplus
 }

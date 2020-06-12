@@ -18,7 +18,7 @@
 
 #define     PIT_MODULE
 #define     FTM_MODULE   
-
+#define     KBI_MODULE
 #define     CTP_MODULE
 #define     LCD_MODULE          
 #define     LED_MODULE          

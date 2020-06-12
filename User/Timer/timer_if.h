@@ -9,8 +9,8 @@
 *  Comment:
 ******************************************************************************/		
 
-#ifndef _PIT_IF_H_
-#define _PIT_IF_H_
+#ifndef _TIMER_IF_H_
+#define _TIMER_IF_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,13 +34,15 @@ typedef enum
 {
     EN_SYSTEM_STARTUP_CMD_TIMER=0x00    /* 2s, used for startup command */
     ,EN_DESER_SEND_DATA_TIMER       /* 100ms, used for interrupt pin, CRQ */
-    ,EN_CTP_IC_STARTUP_TIMER        /* 180ms, wait for 180ms after reset, CTP can work */
+    ,EN_CTP_IC_STARTUP_TIMER        /* 40ms, wait for 40ms after reset, CTP can work */
     ,EN_LCD_STABDBY_LOW_KEEP        /* 70ms, when the module deinit */
     ,EN_DESER_PDB_LOW_KEEP          /* 70ms, when the module deinit */
-    ,EN_UPGRADE_DIS_REQ_PER         /* 1s, display send the upgrade request command to MMI, if response not be received more than 1s, resend it */
-    ,EN_UPGRADE_END                  /* 500ms, return the response, if we wait 500ms, no other data received, restart MCU */
+    ,EN_UPGRADE_DIS_RESET           /* 1s, if it receives the command of status query command after received the reset commnad, we will send the status command, the timeout is 1s */
     ,EN_UPGRADE_DESER_SEND_DATA    /* 100ms, used for interrupt pin, CRQ */
-    ,END_OF_TIMER_BYTE  
+    ,EN_LED_PREPARE_CLOSE           /* 10s, wait the MMI to close the LED */
+    ,EN_DESER_LOCK_LAST_STATUS      /* 5s, the time of deserializer error last foe 5s */
+    ,END_OF_TIMER_BYTE 
+
 }EN_TIMER_BYTE;
 
 /* It's counted by 2ms task,  Asynchronous timing */
@@ -48,6 +50,7 @@ typedef enum
 #define TIMER_COUNT_8MS     4   /* 8/2: 8ms*/
 #define TIMER_COUNT_16MS    8   /* 16/2: 16ms*/
 #define TIMER_COUNT_20MS    10  /* 20/2: 20ms*/
+#define TIMER_COUNT_40MS    20  /* 40/2: 40ms */
 #define TIMER_COUNT_32MS    16  /* 32/2: 32ms*/
 #define TIMER_COUNT_64MS    32  /* 64/2: 64ms*/
 #define TIMER_COUNT_70MS    35  /* 70/2: 70ms*/
@@ -58,7 +61,10 @@ typedef enum
 #define TIMER_COUNT_500MS   250  /* 500/2: 500ms*/
 #define TIMER_COUNT_1S      500  /* 1000/2: 1000ms*/
 #define TIMER_COUNT_2S      1000  /* 2000/2: 2000ms*/
+#define TIMER_COUNT_5S      2500   /* 5000/2: 5000ms */
+#define TIMER_COUNT_10S     5000  /* 10000/2: 10000ms*/
 #define TIMER_COUNT_120S    60000  /* 120000/2: 120s*/
+
 
 
 /* synchronous timing, the bus clock is 20M  */

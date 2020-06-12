@@ -15,7 +15,7 @@
 #include <string.h>
 #include "CTP_ctrl.h"
 #include "CTP_data.h"
-#include "../Command/command.h"
+#include "Command/command.h"
 #include "I2C.h"
 #include "GPIO.h"
 
@@ -75,11 +75,7 @@ typedef enum
 ************************************************************************************************/
 void CTP_Data_Init(void)
 {
-    I2C_ConfigType  I2C_Config = {{0}};
-
-    /* start CTP IC*/
-//    CTP_Data_GPIO_Cfg();
-    
+    I2C_ConfigType  I2C_Config = {{0}};    
     /* Initialize I2C module with interrupt mode */
     I2C_Config.u16Slt = 0x0000;
 //    I2C_Config.u16F = 0x0090; /* Baud rate at 100Kbps, MULT=4,  SCL divider=48, 20M/(MULT*divider) */
@@ -88,8 +84,8 @@ void CTP_Data_Init(void)
     I2C_Config.sSetting.bIntEn = 0;
     I2C_Config.sSetting.bI2CEn = 1;
 
-    I2C_Init(CTP_IC, &I2C_Config);
-//    I2C_ClearStatus(CTP_IC,I2C_S_IICIF_MASK);
+    I2C_Init(I2C1, &I2C_Config);
+//  I2C_ClearStatus(CTP_IC,I2C_S_IICIF_MASK);
 }
 
 /***********************************************************************************************
@@ -317,7 +313,6 @@ void CTP_Data_Reset_Set(uint8_t level)
         OUTPUT_CLEAR(PTG,PTG1);
 }
 
-#ifdef GEELY_SX11
 /***********************************************************************************************
 *
 * @brief    CTP power enable
@@ -327,8 +322,8 @@ void CTP_Data_Reset_Set(uint8_t level)
 ************************************************************************************************/
 void CTP_Data_Power_En_Init(void)
 {
-    CONFIG_PIN_AS_GPIO(PTD, PTD4, OUTPUT);    /* CTP_EN , the enable pin of the CTP power */
-    OUTPUT_SET(PTD, PTD4);
+    CONFIG_PIN_AS_GPIO(PTH, PTH6, OUTPUT);    /* CTP_EN , the enable pin of the CTP power */
+    OUTPUT_SET(PTH, PTH6);
 }
 
 /***********************************************************************************************
@@ -341,11 +336,10 @@ void CTP_Data_Power_En_Init(void)
 void CTP_Data_Power_En_Deinit(void)
 {
     /* CTP_EN , the enable pin of the CTP power */
-    OUTPUT_CLEAR(PTD, PTD4);
+    OUTPUT_CLEAR(PTH, PTH6);
     /* CTP _reset, low */
     CTP_Data_Reset_Set(0);
 }
-#endif
 
 
 #if 0

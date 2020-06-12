@@ -145,5 +145,11 @@ communication protocol data
 #define CMD_SEND_ID_LCD_FAULT        0x52 /*The value of the data4, reply the LCD fault information*/
 #define CMD_SEND_ID_EXIT_DIAGNOSIS  0x6F /**/
 
+#define CMD_TYPE_CTP_CALIBRATE      0x22    /* CTP calibrate IDACs */
+#define CMD_SEND_ID_USED_FACTORY    0x7B
+
+#define CTP_IC  I2C1
+#define CTP_IC_SLAVE_ADDRESS    0x48
+
 
 #endif/* _COMMAND_H_ */

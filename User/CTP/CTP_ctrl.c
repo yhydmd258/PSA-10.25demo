@@ -14,8 +14,9 @@
 #include "CTP_if.h"
 #include "CTP_ctrl.h"
 #include "CTP_data.h"
+#include "gpio.h"
 
-#include "../Command/command.h"
+#include "Command/command.h"
 #include "../Timer/timer_if.h"
 #include <string.h>
 
@@ -140,21 +141,17 @@ static CALLBACK_FUNCTION CTP_Analyse_Function[CTP_END_ENUM] =
 ************************************************************************************************/
 void CTP_Ctrl_Init(void)
 {
-#ifdef GEELY_SX11
     /* power on enable */
     CTP_Data_Power_En_Init();
     Timer_If_Delay(TIMER_DELAY_2MS);
-#endif
     /* init I2C */
     CTP_Data_Init();
     /* power off CTP IC, set power level low */
+	CONFIG_PIN_AS_GPIO(PTG,PTG1,OUTPUT); 
     CTP_Data_Reset_Set(0);
     CTP_Active_Status = NO_ACTIVE;
     Timer_If_Set(EN_CTP_IC_STARTUP_TIMER, TIMER_COUNT_40MS);
-//    Timer_If_Delay(TIMER_DELAY_40MS);
-//    CTP_Data_Reset_Set(1);
     CTP_Ctrl_Int_Flag_Set(0);
-//    Timer_If_Delay(TIMER_DELAY_100MS);
 
     Touch_Report_Buf.write_pos=0;
     Touch_Report_Buf.read_pos=COORDINATE_BUF_NUMBER-1;
@@ -174,18 +171,13 @@ void CTP_Ctrl_Init(void)
 ************************************************************************************************/
 void CTP_Ctrl_Deinit(void)
 {
-#ifdef GEELY_SX11
+	#define DEEP_SLEEP_SNED_SIZE    2
     CTP_Data_Power_En_Deinit(); /* disenable the CTP power */
-#else
-    #define DEEP_SLEEP_SNED_SIZE    2
     uint8_t send_buf[DEEP_SLEEP_SNED_SIZE] = {0x00, 0x00};
     
     CTP_Data_Master_Read(0x00, &(send_buf[1]), 1);
     send_buf[1] |= DEEP_SLEEP_MASK;
     CTP_Data_Master_Send(send_buf, DEEP_SLEEP_SNED_SIZE);
-#endif
-
-//    CTP_Data_Master_Read(0x00, &(send_buf[1]), 1);
 
     /* clear the times which reading the message from CTP IC*/
     CTP_Ctrl_Int_Flag_Set(0);
@@ -292,7 +284,7 @@ void CTP_Ctrl_Msg_Read(void)
 #define CYDATA_OFSH_POS     0x04
 #define CYDATA_OFSL_POS     0x05
 #define CYITO_OFFSET        0x15
-#define MFGID_SZ_POS         0x22
+#define MFGID_SZ_POS        0x22
 #define READ_BUF_SIZE       133
 
     uint8_t   temp_buf[READ_BUF_SIZE]={0};

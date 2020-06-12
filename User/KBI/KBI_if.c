@@ -127,7 +127,7 @@ void KBI_If_Init(void)
     KBI_Init(KBI_1, &KBI1_Config);
 
     /* set DESERIALIZER_I2C priority */
-    NVIC_SetPriority(KBI1_IRQn, 3);
+    NVIC_SetPriority(KBI1_IRQn, 2);
 }
 
 /***********************************************************************************************

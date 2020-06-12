@@ -64,13 +64,10 @@ static PIT_If_Callback Pit_If_Channel0_Callback[]=
     };
 static PIT_If_Callback Pit_If_Channel1_Callback[]=
     {
-        Timer_If_Count,
+        &Timer_If_Count,
 			
 #ifdef  CTP_MODULE
-        CTP_If_2ms_Task,        
-#endif
-#ifdef DEBUG
-	    debug_if_2s_task,
+        //&CTP_If_2ms_Task,        
 #endif
         NULL
     };

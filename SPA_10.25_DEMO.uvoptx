@@ -219,6 +219,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>Deserialize_If_Backlight_Flag()</ItemText>
         </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>Touch_Report_Buf</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>

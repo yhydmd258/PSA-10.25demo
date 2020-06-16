@@ -66,8 +66,10 @@ void Bsp_If_Init(void)
 #ifdef PIT_MODULE
 	PIT_If_Init();
 #endif
-#ifdef  CTP_MODULE
-	CTP_If_Init();		
+#ifdef  KBI_MODULE
+	KBI_If_Init();
 #endif
-
+#ifdef  CTP_MODULE
+	CTP_If_Init();
+#endif
 }

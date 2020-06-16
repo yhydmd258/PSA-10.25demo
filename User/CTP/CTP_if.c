@@ -82,6 +82,19 @@ void CTP_If_Deinit(void)
 {
     CTP_Ctrl_Deinit();
 }
+/***********************************************************************************************
+*
+* @brief    CTP_If_Init() - Program entry function
+* @param    none
+* @return   none
+*
+************************************************************************************************/
+void CTP_If_Cmd_Send(UINT8* data, UINT8 data_size)
+{
+#ifdef  DESERIALIZE_MODULE
+    Deserialize_If_Cmd_Send(data, data_size);
+#endif
+}
 
 /***********************************************************************************************
 *
@@ -159,36 +172,6 @@ uint8_t CTP_If_Fault_Check(void)
     return CTP_Ctrl_Fault_Check();
 }
 
-/***********************************************************************************************
-*
-* @brief      save the command data which will be sent
-* @param     data: the data need to be made into standard frame
-                data_size:  the size of the data need to be made into standard frame
-                repeat: the repeat times of the data need to be sent
-                extend_data: the data need to be made into extended frame
-                extend_size: the size of the data need to be made into extended frame
-* @return   none
-*
-************************************************************************************************/
-void CTP_If_Cmd_Send_Save(uint8_t* data,uint8_t data_size,uint8_t repeat,uint8_t *extend_data,uint8_t extend_size)
-{
-#ifdef DESERIALIZE_MODULE
-    Deserialize_If_Send_Cmd_Save(data, data_size, repeat, extend_data, extend_size);
-#endif
-}
-
-/***********************************************************************************************
-*
-* @brief    analyse the command
-* @param    cmd_buf: the pointer of command
-                  cmd_size: command size
-* @return   none
-*
-************************************************************************************************/
-void CTP_If_Cmd_Analyse(uint8_t *cmd_buf, uint8_t cmd_size)
-{
-    CTP_Ctrl_Cmd_Analyse(cmd_buf, cmd_size);
-}
 
 /***********************************************************************************************
 *

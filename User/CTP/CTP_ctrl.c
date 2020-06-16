@@ -32,8 +32,6 @@
 /**********************************************************************************************
 * Local functions
 **********************************************************************************************/
-static void CTP_Ctrl_Ground_Calibrate(void);
-static void CTP_Ctrl_MMI_Calibrate_Rps(uint8_t rps_value);
 
 /**********************************************************************************************
 * Constants and macros
@@ -86,7 +84,7 @@ static uint32_t Touch_Version;  /* record the version of the CTP */
 static uint8_t  Touch_Fault; /* TRUE: OK;  FALSE: abnormal */
 static uint8_t CTP_Int_Flag=0;
 static CYPRESS_IC_ACTIVE_STATUS CTP_Active_Status = NO_ACTIVE;
-static CTP_GROUND_CALIBRATE_STATUS CTP_Calibrate_Status = CALIBRATION_END;
+//static CTP_GROUND_CALIBRATE_STATUS CTP_Calibrate_Status = CALIBRATION_END;
 
 #define CTP_EXIT_BOOT_WITH_CRC_SIZE    0x09
 #define CTP_ENTER_SYSTEM_INFOR_SIZE   0x02
@@ -104,21 +102,6 @@ static uint8_t CTP_Command_Buf[COMMAND_END][CTP_EXIT_BOOT_WITH_CRC_SIZE]=
 };
 
 #define CTP_CALIBRATE_CMD_SIZE   0x05
-
-/* in the configuration and test mode, send calibration command */
-static uint8_t CTP_Calibrate_CMD_Buf[CALIBRATION_WAITING_STATUS][CTP_CALIBRATE_CMD_SIZE]=
-{
-    /* start address, hst_mode, RESET_DETECT, COMMAND, CMD_DATA */
-    {0x00,0x20,0x00,0x09,0x00}/* MUTUAL_CAP_CALIBRATION_STATUS */
-    ,{0x00,0x20,0x00,0x09,0x01}/* BUTTOMS_CALIBRATION_STATUS */
-    ,{0x00,0x20,0x00,0x09,0x02}/* SELF_CAP_CALIBRATION_STATUS */
-};
-
-static uint8_t CTP_Analyse_Req[CTP_END_ENUM] = {FALSE};
-static CALLBACK_FUNCTION CTP_Analyse_Function[CTP_END_ENUM] =
-{
-     &CTP_Ctrl_Ground_Calibrate  /* CTP_GROUND_CALIBRATE */
-};
 
 /**********************************************************************************************
 * Local function prototypes
@@ -235,40 +218,6 @@ uint32_t CTP_Ctrl_Version_Read(void)
     return Touch_Version;
 }
 
-/***********************************************************************************************
-*
-* @brief    analyse the command
-* @param    cmd_buf: the pointer of command
-                  cmd_size: command size
-* @return   none
-*
-************************************************************************************************/
-void CTP_Ctrl_Cmd_Analyse(uint8_t *cmd_buf, uint8_t cmd_size)
-{
-    #define GROUND_CALIBRATE_REQ    0x01
-    #define CTP_RESTART             0x03
-    
-    switch(cmd_buf[1])
-    {
-        case CMD_TYPE_CTP_CALIBRATE:     /* QAC-9.6.0-0597 severity 5, ingore it */
-            if(GROUND_CALIBRATE_REQ == cmd_buf[2])
-            {
-                CTP_Analyse_Req[CTP_GROUND_CALIBRATE] = TRUE;
-            }
-            else if(CTP_RESTART == cmd_buf[2])
-            {
-                /* set SYSRESETREQ bit, activate external SYSRESETREQ signal  */
-                NVIC_SystemReset();
-            }
-            else
-            {
-                /* do nothing */
-            }
-            break;
-        default:
-            break;
-    }
-}
 
 /***********************************************************************************************
 *
@@ -446,110 +395,9 @@ void CTP_Ctrl_Msg_Read(void)
                 CTP_Active_Status = APP_OPERATING_MODE;
                 break;
             case APP_CFG_AND_TEST_MODE:
-                if(CALIBRATION_END == CTP_Calibrate_Status)
-                {
-                    /* clear data(bit4-6: device mode) */
-                    //                temp_data = hst_mode[0]&(~DEVICE_MODE_MASK);
-                    /* set bit7(1), set bit3(1), set bit2(1) */
-                    //                CTP_Command_Buf[ENTER_OPERATING_MODE][1]|=(temp_data|DATA_TOGGLE_MASK|MODE_CHANGE_RQ_MASK|LOW_POWER_ENABLE_MASK);
                     CTP_Command_Buf[ENTER_OPERATING_MODE][1]|=(temp_data|DATA_TOGGLE_MASK|MODE_CHANGE_RQ_MASK);
                     CTP_Data_Master_Send(CTP_Command_Buf[ENTER_OPERATING_MODE],CTP_ENTER_OPERATING_SIZE);
                     CTP_Active_Status = APP_OPERATING_MODE;
-                }
-                else
-                {
-                    /* the ground calibration function is only used during the factory prodution */
-                    switch(CTP_Calibrate_Status)
-                    {
-                        case MUTUAL_CAP_CALIBRATION_STATUS:
-                            /* send the mutual cap calibration command to CTP IC, then wait for a moment, and read the response */
-                            if(!CTP_Data_Master_Send(CTP_Calibrate_CMD_Buf[MUTUAL_CAP_CALIBRATION_STATUS],CTP_CALIBRATE_CMD_SIZE))
-                            {
-                                CTP_Calibrate_Status = BUTTOMS_CALIBRATION_STATUS;
-                            }
-                            else
-                            {
-                                /* send the error response */
-                                CTP_Ctrl_MMI_Calibrate_Rps(1);
-                                CTP_Calibrate_Status = CALIBRATION_END;
-                            }
-                            break;
-                        case BUTTOMS_CALIBRATION_STATUS:
-                            /* read the response of mutual cap  calibration */
-                            if(!CTP_Data_Master_Read(0x00, temp_buf, 4))
-                            {
-                                /* if the value of temp_buf[3] is 0, it indicates calibration is ok; Other value indicates error */
-                                if((0 == temp_buf[3]) &&
-                                    (!CTP_Data_Master_Send(CTP_Calibrate_CMD_Buf[BUTTOMS_CALIBRATION_STATUS],CTP_CALIBRATE_CMD_SIZE)))
-                                {
-                                    CTP_Calibrate_Status = SELF_CAP_CALIBRATION_STATUS;
-                                }
-                                else
-                                {
-                                    /* send the error response */
-                                    CTP_Ctrl_MMI_Calibrate_Rps(1);
-                                    CTP_Calibrate_Status = CALIBRATION_END;
-                                }
-                            }
-                            else
-                            {
-                                /* send the error response */
-                                CTP_Ctrl_MMI_Calibrate_Rps(1);
-                                CTP_Calibrate_Status = CALIBRATION_END;
-                            }
-                            break;
-                        case SELF_CAP_CALIBRATION_STATUS:
-                            /* read the response of mutual cap  calibration */
-                            if(!CTP_Data_Master_Read(0x00, temp_buf, 4))
-                            {
-                                /* if the value of temp_buf[3] is 0, it indicates calibration is ok; Other value indicates error */
-                                if((0 == temp_buf[3]) &&
-                                    (!CTP_Data_Master_Send(CTP_Calibrate_CMD_Buf[SELF_CAP_CALIBRATION_STATUS],CTP_CALIBRATE_CMD_SIZE)))
-                                {
-                                    CTP_Calibrate_Status = CALIBRATION_WAITING_STATUS;
-                                }
-                                else
-                                {
-                                    /* send the error response */
-                                    CTP_Ctrl_MMI_Calibrate_Rps(1);
-                                    CTP_Calibrate_Status = CALIBRATION_END;
-                                }
-                            }
-                            else
-                            {
-                                /* send the error response */
-                                CTP_Ctrl_MMI_Calibrate_Rps(1);
-                                CTP_Calibrate_Status = CALIBRATION_END;
-                            }
-                            break;
-                        case CALIBRATION_WAITING_STATUS:
-                            /* read the response of mutual cap  calibration */
-                            if(!CTP_Data_Master_Read(0x00, temp_buf, 4))
-                            {
-                                /* if the value of temp_buf[3] is 0, it indicates calibration is ok; Other value indicates error */
-                                if(0 == temp_buf[3])
-                                {
-                                    /* send the positive response */
-                                    CTP_Ctrl_MMI_Calibrate_Rps(0);
-                                }
-                                else
-                                {
-                                    /* send the error response */
-                                    CTP_Ctrl_MMI_Calibrate_Rps(1);
-                                }
-                            }
-                            else
-                            {
-                                /* send the error response */
-                                CTP_Ctrl_MMI_Calibrate_Rps(1);
-                            }
-                            CTP_Calibrate_Status = CALIBRATION_END;
-                            break;
-                        case CALIBRATION_END:
-                        default:
-                            break;
-                    }
-                }
                 break;
             case NO_ACTIVE:
             default:
@@ -574,22 +422,11 @@ void CTP_Ctrl_Cmd_Make(void)
     CTP_Data_Cmd_Make(&Touch_Report_Buf);
 }
 
-/***********************************************************************************************
-*
-* @brief      save the command data which will be sent
-* @param     data: the data need to be made into standard frame
-                data_size:  the size of the data need to be made into standard frame
-                repeat: the repeat times of the data need to be sent
-                extend_data: the data need to be made into extended frame
-                extend_size: the size of the data need to be made into extended frame
-* @return   none
-*
-************************************************************************************************/
-void CTP_Ctrl_Cmd_Send_Save(uint8_t* data,uint8_t data_size,uint8_t repeat,uint8_t *extend_data,uint8_t extend_size)
-{
-    CTP_If_Cmd_Send_Save(data, data_size, repeat, extend_data, extend_size);
-}
 
+void CTP_Ctrl_Cmd_Send(UINT8* data, UINT8 data_size)
+{
+    CTP_If_Cmd_Send(data, data_size);
+}
 /***********************************************************************************************
 *
 * @brief    set the CTP interrupt flag
@@ -624,67 +461,7 @@ uint8_t CTP_Ctrl_Int_Flag_Get(void)
 ************************************************************************************************/
 void CTP_Ctrl_Cmd_Response(void)
 {
-    uint8_t fun_number=0;
 
-    for(fun_number=0; fun_number<CTP_END_ENUM; fun_number++)
-    {
-        if((TRUE == CTP_Analyse_Req[fun_number]) && CTP_Analyse_Function[fun_number])
-        {
-            CTP_Analyse_Function[fun_number]();
-        }
-    }
-}
-
-/***********************************************************************************************
-*
-* @brief    start the status of the ground calibrate about CTP IC
-* @param    none
-* @return   none
-*
-************************************************************************************************/
-static void CTP_Ctrl_Ground_Calibrate(void)
-{
-    if(APP_OPERATING_MODE == CTP_Active_Status)
-    {
-        /* wait the CTP IC to switch to the operating mode, and then transfer to the configuation and test mode */
-        CTP_Command_Buf[ENTER_CFG_AND_TEST_MODE][1]|=DATA_TOGGLE_MASK|MODE_CHANGE_RQ_MASK;
-        CTP_Data_Master_Send(CTP_Command_Buf[ENTER_CFG_AND_TEST_MODE],CTP_ENTER_CFG_AND_TEST_SIZE);
-        /* request to calibrate the ground of CTP IC*/
-        CTP_Calibrate_Status = MUTUAL_CAP_CALIBRATION_STATUS; 
-        CTP_Analyse_Req[CTP_GROUND_CALIBRATE] = FALSE;
-    }
-}
-
-/***********************************************************************************************
-*
-* @brief    response the command from the MMI
-* @param    none
-* @return   0: request to send positive response to MMI
-                1: request to send nagative response to MMI
-*
-************************************************************************************************/
-static void CTP_Ctrl_MMI_Calibrate_Rps(uint8_t rps_value)
-{
-    #define CALIBRATE_CMD_BUF_SIZE      9
-    #define CALIBRATE_RESULT_SUCCESS    1
-    #define CALIBRATE_RESULT_ERROR      0
-    
-    uint8_t response_buf[CALIBRATE_CMD_BUF_SIZE] = {0};
-
-    response_buf[0] = CMD_SEND_ID_USED_FACTORY;
-    response_buf[1] = CMD_TYPE_CTP_CALIBRATE;
-
-    if(rps_value)
-    {
-        response_buf[2] = CALIBRATE_RESULT_ERROR;
-    }
-    else
-    {
-        response_buf[2] = CALIBRATE_RESULT_SUCCESS;
-    }
-
-    /* send the command to MMI */
-    CTP_Ctrl_Cmd_Send_Save(response_buf, CALIBRATE_CMD_BUF_SIZE, 0, NULL, 0);
 }
 
 #endif /* CTP_MODULE */

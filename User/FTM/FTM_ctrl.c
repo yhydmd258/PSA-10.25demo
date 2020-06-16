@@ -63,7 +63,7 @@ static uint8_t FTM_INIT_FLAG = FALSE;
 void FTM_Ctrl_Init(void)
 {
     FTM_ConfigType FTM2_Config = {0};
-    FTM_ChParamsType FTM2CH0_Config = {0};
+//    FTM_ChParamsType FTM2CH0_Config = {0};
     FTM_ChParamsType FTM2CH1_Config = {0};
 
     FTM2_Config.modulo = FTM2_MODULE_VALUE;	//	200 Hz/ 5 ms duty cycle PWM

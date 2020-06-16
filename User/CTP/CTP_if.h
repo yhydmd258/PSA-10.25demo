@@ -63,7 +63,7 @@ extern void CTP_If_Task(void);
 extern void CTP_If_8ms_Task(void);
 extern void CTP_If_Touch_Interrupt_Notice(void);
 extern uint8_t CTP_If_Fault_Check(void);
-extern void CTP_If_Cmd_Send_Save(uint8_t* data,uint8_t data_size,uint8_t repeat,uint8_t *extend_data,uint8_t extend_size);
+extern void CTP_If_Cmd_Send(UINT8* data, UINT8 data_size);
 extern void CTP_If_Cmd_Analyse(uint8_t *cmd_buf, uint8_t cmd_size);
 extern void CTP_If_Vol_Increase_Set(uint8_t level);
 extern void CTP_If_Vol_Decrease_Set(uint8_t level);

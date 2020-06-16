@@ -32,8 +32,8 @@
 /**********************************************************************************************
 * Local types
 **********************************************************************************************/
-static UINT8 LED_Ctrl_PWM_Percent=100;
-static UINT8 LED_Ctrl_PWM_Percent_Last=100;
+//static UINT8 LED_Ctrl_PWM_Percent=100;
+//static UINT8 LED_Ctrl_PWM_Percent_Last=100;
 
 /**********************************************************************************************
 * Local function prototypes
@@ -185,17 +185,17 @@ void LED_Ctrl_Backlight_Detect(void)
             /* environment temperature>85C, environment temperature<-40C */
             if((adc_pcb_value<=ADC_PCB_NTC_109C) || (adc_pcb_value>=ADC_PCB_NTC_N_11C))
             {
-                LED_Ctrl_PWM_Percent=0;
+//                LED_Ctrl_PWM_Percent=0;
             }
             /*backlight start derating when the environment temperature is 65C,  PWM is 50% when 85C*/
             else if((adc_pcb_value<=ADC_PCB_NTC_96C)
                 &&(adc_pcb_value>ADC_PCB_NTC_109C))
             {
-                LED_Ctrl_PWM_Percent = adc_pcb_value/2-100;
+//                LED_Ctrl_PWM_Percent = adc_pcb_value/2-100;
             }
             else
             {
-                LED_Ctrl_Backlight_Set(LED_Ctrl_PWM_Percent_Last);
+//                LED_Ctrl_Backlight_Set(LED_Ctrl_PWM_Percent_Last);
             }
         }
     }
@@ -224,7 +224,7 @@ void LED_Ctrl_Cmd_Send(UINT8* data, UINT8 data_size)
 #if 0
 static UINT8 LED_Ctrl_Backlight_Get(void)
 {
-    return LED_Ctrl_PWM_Percent;
+//    return LED_Ctrl_PWM_Percent;
 }
 #endif
 #endif /* LED_MODULE */

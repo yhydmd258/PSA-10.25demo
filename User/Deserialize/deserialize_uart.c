@@ -49,7 +49,7 @@ static DES_UART_RECEIVE_DATA receive_buf={0};
 * static Functions
 ********************************************************************************/
 static void Uart0_SendChar(UINT8 send);
-static void Uart1_SendChar(UINT8 send);
+//static void Uart1_SendChar(UINT8 send);
 static UINT8 Uart0_GetChar(void);
 
 /***********************************************************************************************
@@ -221,12 +221,12 @@ static void Uart0_SendChar(UINT8 send)
 	(void)UART0_S1;								/* Read UART0_S1 register*/
 	UART0_D=send;								/* Send data*/
 }
-static void Uart1_SendChar(UINT8 send)
+/*static void Uart1_SendChar(UINT8 send)
 {
-	while((UART1_S1&UART_S1_TDRE_MASK)==0);		/* Wait for transmit buffer to be empty*/
-	(void)UART1_S1;								/* Read UART0_S1 register*/
-	UART1_D=send;								/* Send data*/
-}
+	while((UART1_S1&UART_S1_TDRE_MASK)==0);		
+	(void)UART1_S1;								
+	UART1_D=send;								
+}*/
 
 /***********************************************************************************************
 *

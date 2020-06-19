@@ -131,6 +131,7 @@ void CTP_Ctrl_Init(void)
     CTP_Data_Init();
     /* power off CTP IC, set power level low */
 	CONFIG_PIN_AS_GPIO(PTG,PTG1,OUTPUT); 
+	CONFIG_PIN_AS_GPIO(PTG,PTG0,INPUT);
     CTP_Data_Reset_Set(0);
     CTP_Active_Status = NO_ACTIVE;
     Timer_If_Set(EN_CTP_IC_STARTUP_TIMER, TIMER_COUNT_40MS);
@@ -179,14 +180,18 @@ void CTP_Ctrl_Deinit(void)
 * @return   none
 *
 ************************************************************************************************/
+UINT8 CTP_TASK_START;
+
 void CTP_Ctrl_Status_Check(void)
 {
     if((NO_ACTIVE == CTP_Active_Status) && (TRUE == Timer_If_Check(EN_CTP_IC_STARTUP_TIMER)))
     {
         /* power on CTP IC, set power level High */
         CTP_Data_Reset_Set(1);
+//  	Timer_If_Delay(TIMER_DELAY_2MS);
         CTP_Active_Status = BOOT_STATUS;
         Touch_Fault = TRUE;
+		CTP_TASK_START=1;
     }
 }
 
@@ -244,7 +249,7 @@ void CTP_Ctrl_Msg_Read(void)
     uint8_t   report_number=0;
     uint8_t   i=0;
     HST_MODE_STRUCT   *hst_mode=NULL;
-//    uint8_t   reset_detect=0;
+    uint8_t   reset_detect=0;
     TT_STAT_STRUCT   *tt_stat=NULL;
     TOUCH_REPORT_STRUCT *touch_report_infor=NULL;
     uint8_t   write_pos=0;
@@ -263,7 +268,7 @@ void CTP_Ctrl_Msg_Read(void)
             return;
         /* analyse HST_MODE and RESET_DETECT */
         hst_mode = (HST_MODE_STRUCT*)(&temp_buf[HST_MODE]);
-//        reset_detect = temp_buf[RESET_DETECT];
+        reset_detect = temp_buf[RESET_DETECT];
 
         if(NO_ACTIVE!=CTP_Active_Status)
         {

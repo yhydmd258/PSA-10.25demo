@@ -171,16 +171,15 @@ void CTP_Data_Cmd_Make(TOUCH_COORDINATE_BUF *touch_data)
 	
 	#define COMMAND_SIZE_MAX			13
 
-    UINT8   cmd_data[COMMAND_SIZE_MAX]={0};
-    UINT8   cmd_data_postion=0;
-    TOUCH_REPORT_STRUCT  temp_touch;
-	if( (touch_data->read_pos+1)%COORDINATE_BUF_NUMBER == touch_data->write_pos)
-        return;
+	UINT8   cmd_data[COMMAND_SIZE_MAX]={0};
+   // TOUCH_REPORT_STRUCT  temp_touch;
 	/* start to communication with deserializer */
+	if((touch_data->read_pos+1)%COORDINATE_BUF_NUMBER == touch_data->write_pos)
+		return;
     while((touch_data->read_pos+1)%COORDINATE_BUF_NUMBER != touch_data->write_pos)
     {
     	memset(cmd_data,0x00,COMMAND_SIZE_MAX);
-	    memcpy(&temp_touch, &(touch_data->buf[touch_data->read_pos]),sizeof(touch_data->buf[touch_data->read_pos]));
+	//    memcpy(&temp_touch, &(touch_data->buf[touch_data->read_pos]),sizeof(touch_data->buf[touch_data->read_pos]));
 		touch_data->read_pos=(touch_data->read_pos+1)%COORDINATE_BUF_NUMBER;	
 		/* make  touch position info standard command */
         /*       t[0] = 0x79    sync
@@ -197,72 +196,55 @@ void CTP_Data_Cmd_Make(TOUCH_COORDINATE_BUF *touch_data)
                         t[11] = 0x6A   end of data
                         t[12] = 0x6A   end of data   */	
                  // make the header of packet
-        cmd_data[cmd_data_postion]=COMMAND_SYNC; //D0
-        cmd_data_postion++;
-        cmd_data[cmd_data_postion]=COMMAND_DEV_ADDR; //D1
-        cmd_data_postion++;
-        cmd_data[cmd_data_postion]=COMMAND_ID_TOUCH; //D2
-        cmd_data_postion++;
-        cmd_data[cmd_data_postion]=0x00; //temp set ,after adding message, modify it,D3
-        cmd_data_postion++;
+        cmd_data[0]=COMMAND_SYNC; //D0
+        cmd_data[1]=COMMAND_DEV_ADDR; //D1
+        cmd_data[2]=COMMAND_ID_TOUCH; //D2
+        cmd_data[3]=0x09; //temp set ,after adding message, modify it,D3
 		/*report ID*/
-		cmd_data[cmd_data_postion]=temp_touch.touch_ID_str.touch_ID;
+		cmd_data[4]=touch_data->buf[touch_data->read_pos].touch_ID_str.touch_ID+0x2D;
 		/*touch type*/
-		cmd_data_postion++;
-		switch(temp_touch.touch_ID_str.touch_type2)
+		switch(touch_data->buf[touch_data->read_pos].touch_ID_str.touch_type2)
 		{
 			case FINGER_OR_THIN_GLOVE_TYPE:
-				cmd_data[cmd_data_postion]=TOUCH_TYPE_FINGER;
+				cmd_data[5]=TOUCH_TYPE_FINGER;
 				break;
 			case LARGE_OBJECT_TYPE:
-				cmd_data[cmd_data_postion]=TOUCH_TYPE_LARGE_TOUCH;
+				cmd_data[5]=TOUCH_TYPE_LARGE_TOUCH;
 				break;
 			case THICK_GLOVE_TYPE:
-				cmd_data[cmd_data_postion]=TOUCH_TYPE_GLOVE;
+				cmd_data[5]=TOUCH_TYPE_GLOVE;
 				break;
 			case RESERVED_TYPE:
 			default:
-				cmd_data[cmd_data_postion] = TOUCH_TYPE_RESERVED;
+				cmd_data[5] = TOUCH_TYPE_RESERVED;
 				break;
 		}
 		/* event codes */
-		cmd_data_postion++;
-		switch (temp_touch.touch_ID_str.event_ID)
+		switch (touch_data->buf[touch_data->read_pos].touch_ID_str.event_ID)
 		{   
 			case TOUCH_DOWN:
-				cmd_data[cmd_data_postion] = EVENT_CODE_DOWN;
+				cmd_data[6] = EVENT_CODE_DOWN;
 				break;		
 			case MOVING:
-				cmd_data[cmd_data_postion] = EVENT_CODE_MOVE;
+				cmd_data[6] = EVENT_CODE_MOVE;
 				break;
 			case LIFT_OFF:
-				cmd_data[cmd_data_postion] = EVENT_CODE_UP;
+				cmd_data[6] = EVENT_CODE_UP;
 				break;
 			case NO_EVENT:
 			default:
-				cmd_data[cmd_data_postion] = EVENT_CODE_NO_EVENT;
+				cmd_data[6] = EVENT_CODE_NO_EVENT;
 				break;
 		}
-		cmd_data_postion++;
-		cmd_data[cmd_data_postion]=temp_touch.touch_y_LSB;
-		cmd_data_postion++;
-		cmd_data[cmd_data_postion]=temp_touch.touch_y_MSB;
-		cmd_data_postion++;
-		cmd_data[cmd_data_postion]=temp_touch.touch_x_LSB;
-		cmd_data_postion++;
-		cmd_data[cmd_data_postion]=temp_touch.touch_x_MSB;
-		cmd_data[3] += 7;
+		cmd_data[7]=touch_data->buf[touch_data->read_pos].touch_y_LSB;
+		cmd_data[8]=touch_data->buf[touch_data->read_pos].touch_y_MSB;
+		cmd_data[9]=touch_data->buf[touch_data->read_pos].touch_x_LSB;
+		cmd_data[10]=touch_data->buf[touch_data->read_pos].touch_x_MSB;
 		// make the end of packet
-        cmd_data_postion++;
-        cmd_data[cmd_data_postion]=COMMAND_END_DATA;
-        cmd_data_postion++;
-        cmd_data[cmd_data_postion]=COMMAND_END_DATA;
-        cmd_data[3] += 2;
-		CTP_Ctrl_Cmd_Send(cmd_data, cmd_data_postion+1);
+        cmd_data[11]=COMMAND_END_DATA;
+        cmd_data[12]=COMMAND_END_DATA;
+		CTP_Ctrl_Cmd_Send(cmd_data, 13);
     }
-
-	
-
 }
 
 /***********************************************************************************************

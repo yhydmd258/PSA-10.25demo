@@ -13,6 +13,7 @@
 
 #include "CTP_if.h"
 #include "CTP_ctrl.h"
+#include "GPIO.h"
 #include "../Command/command.h"
 #include "../Timer/timer_if.h"
 
@@ -56,9 +57,7 @@
 /**********************************************************************************************
 * Global functions
 **********************************************************************************************/
-
-
-
+static UINT8 ChangeLineStatus( void );
 /***********************************************************************************************
 *
 * @brief    initialize the CTP module
@@ -125,6 +124,11 @@ uint32_t CTP_If_Version_Read(void)
     return CTP_Ctrl_Version_Read();
 }
 
+UINT8 ChangeLineStatus( void )
+{
+    return GPIO_READ_INPUT(PTG,PTG0)? 1 : 0;
+} 
+
 /***********************************************************************************************
 *
 * @brief    task function, make the command and send to deserializer module
@@ -132,15 +136,20 @@ uint32_t CTP_If_Version_Read(void)
 * @return   none
 *
 ************************************************************************************************/
+
 void CTP_If_Task(void)
 {
     CTP_Ctrl_Status_Check();
     /* read the touch report */
-//    CTP_Ctrl_Msg_Read();
-    
-    /* make the command according to the touch report, and send it to deserizlizer */
-    CTP_Ctrl_Cmd_Make();
-
+#if 0
+	if((ChangeLineStatus()==1)&&(CTP_TASK_START==1))
+	{
+	    CTP_Ctrl_Msg_Read();
+		/* make the command according to the touch report, and send it to deserizlizer */
+    	CTP_Ctrl_Cmd_Make();
+	}
+#endif 
+	CTP_Ctrl_Cmd_Make();	
     /* analyse the command and response the command */
     CTP_Ctrl_Cmd_Response();
 }

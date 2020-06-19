@@ -26,7 +26,7 @@ extern "C" {
 /**********************************************************************************************
 * Constants and macros
 **********************************************************************************************/
-#define COORDINATE_BUF_NUMBER 200
+#define COORDINATE_BUF_NUMBER 100
 #define TOUCH_FINGER_NUMBER_MAX     10
 
 /* HST_MODE */

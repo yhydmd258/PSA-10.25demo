@@ -94,8 +94,8 @@ void Deserialize_UART_Init(void)
 			Uart_Config.sctrl2settings.bits.bTe=1;	/* Transmitter enable*/
 			Uart_Config.sctrl2settings.bits.bRie=1; /* Receiver interrupt enable*/
 			Uart_Config.u32SysClkHz = 20000000; 	/* Bus clock in Hz*/
-		//	  Uart_Config.u32Baudrate = 256000; 	  /* Baud rate*/
-			 Uart_Config.u32Baudrate = 9600;	   /* Baud rate*/
+			Uart_Config.u32Baudrate = 256000; 	  /* Baud rate*/
+		//	 Uart_Config.u32Baudrate = 9600;	   /* Baud rate*/
 		//	Uart_Config.u32Baudrate = 115200;	  /* Baud rate*/
 			/*Initialization of UART module*/
 		//	UART_SetCallback(MAX_SERIALIZE_UART, Max_Ser_Data_IRQHander);

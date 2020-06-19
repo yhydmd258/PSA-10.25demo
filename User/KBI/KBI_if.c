@@ -58,7 +58,7 @@ static SKBI_FUNCTION sKBI1_Function_Table[KBI_MAX_PINS_PER_PORT]=
     NULL,   /* KBI1_P14 */
     NULL,   /* KBI1_P15 */
 #ifdef  CTP_MODULE
-    CTP_If_Touch_Interrupt_Notice,   /* KBI1_P16 */
+  CTP_If_Touch_Interrupt_Notice,   /* KBI1_P16 */
 #else
     NULL,   /* KBI1_P16 */
 #endif
@@ -127,7 +127,7 @@ void KBI_If_Init(void)
     KBI_Init(KBI_1, &KBI1_Config);
 
     /* set DESERIALIZER_I2C priority */
-    NVIC_SetPriority(KBI1_IRQn, 2);
+    NVIC_SetPriority(KBI1_IRQn, 1);
 }
 
 /***********************************************************************************************

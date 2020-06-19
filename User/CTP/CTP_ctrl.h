@@ -54,6 +54,7 @@ extern void CTP_Ctrl_Cmd_Send(UINT8* data, UINT8 data_size);
 extern void CTP_Ctrl_Int_Flag_Set(uint8_t flag);
 extern uint8_t CTP_Ctrl_Int_Flag_Get(void);
 extern void CTP_Ctrl_Cmd_Response(void);
+extern UINT8 CTP_TASK_START; 
 
 #ifdef __cplusplus
 }
